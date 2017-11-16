@@ -1,0 +1,221 @@
+<extend name="Public/base" />
+<block name="css"></block>
+<block name="header">标题</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">描述</h3>
+            <div class="box-tools">
+                <button type="button" class="btn btn-primary" id="add">添加</button>
+            </div>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>内容</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">输入框</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择框</label>
+                <div class="layui-input-block">
+                    <select name="type_id" lay-verify="required" lay-search>
+                        <option value=""></option>
+                        <option value="0">北京</option>
+                        <option value="1">上海</option>
+                        <option value="2">广州</option>
+                        <option value="3">深圳</option>
+                        <option value="4">杭州</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">复选框</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="auth[]" value="1" title="写作" lay-skin="primary">
+                    <input type="checkbox" name="auth[]" value="2" title="阅读" lay-skin="primary">
+                    <input type="checkbox" name="auth[]" value="3" title="发呆" lay-skin="primary">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单选框</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="1" title="正常" checked>
+                    <input type="radio" name="status" value="0" title="删除">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">文本域</label>
+                <div class="layui-input-block">
+                    <textarea name="content" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+
+    <script type="text/html" id="detailModal">
+        <dl class="dl-horizontal detail-item">
+            <dt>标题：</dt>
+            <dd>这是非得标题</dd>
+            <dt>标题：</dt>
+            <dd>这是标题</dd>
+        </dl>
+    </script>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw, // 绘制计数器
+                        limit: data.length, // 每页显示多少条数据
+                        start: data.start, // 开始的记录序号
+                        page: (data.start / data.length) + 1, // 当前页码
+                        order: data.order, // 排序
+                        search: $('.fuzzy-search').val(), // 模糊搜索
+
+                        nav_name: $('[name="nav_name"]').val(),
+                        nav_mca: $('[name="nav_mca"]').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Index/getDTInfo')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            var returnData = {
+                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
+                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
+                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
+                                data: result.data // 返回的数据列表
+                            };
+                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "name" },
+                    { "data": "content" },
+                    {
+                        "data": "status",
+                        "class": 'text-center',
+                        render: function(data, type, row, meta) {
+                            return data == {:C('STATUS_Y')} ? '<span class="text-success">正常</span>' : '<span class="text-danger">删除</span>';
+                        }
+                    },
+                    null
+                ],
+                initComplete: function(settings, json) {
+                    // 高级搜索
+                    var advancedHtml = '<form class="form-inline well advanced-form">',
+                        searchArr = { 'nav_name': '标题', 'nav_mca': '内容' };
+                    for (k in searchArr) {
+                        advancedHtml += '<div class="form-group"><label>' + searchArr[k] + ' ：</label>';
+                        advancedHtml += '<input type="text" class="form-control" name="' + k + '" placeholder="' + searchArr[k] + '"></div>';
+                    }
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search"></i>查询</button></form>';
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        // 模糊搜索
+        $('.box-body').on('click', '#fuzzySearch', function() {
+            DTReload(oTable);
+        });
+        // 高级搜索
+        $('.box-body').on('click', '#advancedSearch', function() {
+            DTReload(oTable);
+        });
+
+        layui.use(['layer', 'form'], function() {
+            layer = layui.layer,
+            form = layui.form;
+
+            form.on('submit(formDemo)', function(data) {
+                formOptions.url = "{:U('Index/addSome')}";
+                formOptions.success = function(responseText, statusText) {
+                    if (responseText.status == 1) {
+                        toastr["success"]("添加成功", "OK");
+                        oTable.ajax.reload();
+                        layer.closeAll();
+                    }
+                }
+                $('#actionForm').ajaxSubmit(formOptions);
+                return false;
+            });
+        });
+
+        $('#add').on('click', function() {
+            layer.open({
+                type: 1,
+                title: '标题',
+                content: $('#actionModal').html(),
+                skin: 'layui-layer-lan',
+                area: '40%',
+            });
+            form.render();
+        });
+
+        // 编辑
+        $('.table').on('click', '#edit', function() {
+            var data = getCurRowData(oTable, $(this));
+            layer.open({
+                type: 1,
+                title: '标题',
+                content: $('#actionModal').html(),
+                skin: 'layui-layer-lan',
+                area: '40%',
+                success: function(layero, index){
+                    dataToForm('actionForm', data);
+                }
+            });
+            form.render();
+
+        });
+
+        // 详情
+        $('.table').on('click', '#detail', function() {
+            var data = getCurRowData(oTable, $(this));
+            var detailArr = { 'name': '标题', 'content': '内容' };
+
+            layer.open({
+                type: 1,
+                title: '详情',
+                content: dataToDetail(detailArr, data),
+                skin: 'layui-layer-lan',
+                area: '35%',
+                success: function(layero, index){
+                    dataToForm('test', data);
+                }
+            });
+            form.render();
+        });
+    </script>
+</block>
