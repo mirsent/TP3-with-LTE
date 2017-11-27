@@ -144,7 +144,7 @@ function DTReload(obj) {
     obj.ajax.reload();
 }
 function DTdraw(obj) {
-    obj.draw(false);
+    obj.ajax.reload(null, false);
 }
 
 

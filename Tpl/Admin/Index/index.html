@@ -28,7 +28,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">输入框</label>
                 <div class="layui-input-block">
-                    <input type="text" name="name" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                    <input type="text" name="name" placeholder="请输入标题" autocomplete="off" lay-verify="required" class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -67,7 +67,7 @@
             </div>
             <div class="layui-form-item">
                 <div class="layui-input-block">
-                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="button" class="layui-btn" lay-submit lay-filter="submit">立即提交</button>
                     <button type="reset" class="layui-btn layui-btn-primary">重置</button>
                 </div>
             </div>
@@ -158,7 +158,7 @@
             layer = layui.layer,
             form = layui.form;
 
-            form.on('submit(formDemo)', function(data) {
+            form.on('submit(submit)', function(data) {
                 formOptions.url = "{:U('Index/addSome')}";
                 formOptions.success = function(responseText, statusText) {
                     if (responseText.status == 1) {
