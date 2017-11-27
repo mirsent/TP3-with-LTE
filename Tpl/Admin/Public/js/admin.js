@@ -15,10 +15,8 @@ function dataToForm(obj, data) {
         switch (element.type) {
             case 'text':
             case 'hidden':
-                $this.val(dataValue);
-                break;
             case 'textarea':
-                $this.text(dataValue);
+                $this.val(dataValue);
                 break;
             case 'radio':
                 if ($this.val() == dataValue) $this.prop('checked', true);
