@@ -1,193 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{:C('title')}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <link rel="stylesheet" href="__STATICS__/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="__STATICS__/font-awesome/css/font-awesome.min.css">
-  <!-- pace -->
-  <link rel="stylesheet" href="__STATICS__/pace/pace.min.css">
-  <!-- toastr -->
-  <link rel="stylesheet" href="__STATICS__/toastr/toastr.min.css">
-  <!-- dataTables -->
-  <!-- <link rel="stylesheet" href="__STATICS__/datatables/css/jquery.dataTables.min.css"> -->
-  <link rel="stylesheet" href="__STATICS__/datatables/css/dataTables.bootstrap.min.css">
-  <!-- layui   -->
-  <link rel="stylesheet" href="__STATICS__/layui/css/layui.css">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{:C('TITLE')}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="__STATICS__/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__STATICS__/font-awesome/css/font-awesome.min.css">
+    <!-- pace -->
+    <link rel="stylesheet" href="__STATICS__/pace/pace.min.css">
+    <!-- toastr -->
+    <link rel="stylesheet" href="__STATICS__/toastr/toastr.min.css">
+    <!-- dataTables -->
+    <link rel="stylesheet" href="__STATICS__/datatables/css/dataTables.bootstrap.min.css">
+    <!-- layui   -->
+    <link rel="stylesheet" href="__STATICS__/layui/css/layui.css">
+    <!-- sweetalert2 -->
+    <link rel="stylesheet" href="__STATICS__/sweetalert2/sweetalert2.min.css">
+    <!-- bootstrap-switch -->
+    <link rel="stylesheet" href="__STATICS__/bootstrap-switch/bootstrap-switch.min.css">
 
-  <!-- Theme style -->
-  <link rel="stylesheet" href="__Admin_CSS__/AdminLTE.min.css">
-  <link rel="stylesheet" href="__Admin_CSS__/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="__Admin_CSS__/admin.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="__Admin_CSS__/AdminLTE.min.css">
+    <link rel="stylesheet" href="__Admin_CSS__/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="__Admin_CSS__/admin.css">
 
-  <block name="css">css</block>
+    <block name="css">css</block>
 
-  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
-  <div class="wrapper">
-    <!-- header -->
-    <header class="main-header">
-      <!-- Logo -->
-      <a href="index2.html" class="logo">
-        <span class="logo-mini"><b>A</b>LT</span>
-        <span class="logo-lg"><b>Admin</b>LTE</span>
-      </a>
-      <!-- Header Navbar -->
-      <nav class="navbar navbar-static-top">
-        <!-- Sidebar toggle button-->
-        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-          <span class="sr-only">Toggle navigation</span>
-        </a>
+    <div class="wrapper">
+        <!-- header -->
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="index2.html" class="logo">
+                <span class="logo-mini"><b>A</b>TH</span>
+                <span class="logo-lg"><b>Admin</b>TH</span>
+            </a>
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
 
-        <div class="navbar-custom-menu">
-          <ul class="nav navbar-nav">
-            <li class="dropdown notifications-menu">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <i class="fa fa-bell-o"></i>
-                <span class="label label-warning">10</span>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="header">你有10条提醒</li>
-                <li>
-                  <ul class="menu">
-                    <li>
-                      <a href="#">
-                        <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="footer"><a href="#">查看全部</a></li>
-              </ul>
-            </li>
-            <li class="dropdown user user-menu">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <!-- <img src="" class="user-image" alt="User Image"> -->
-                <span class="hidden-xs">Admin</span>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="user-header">
-                  <!-- <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image"> -->
-                  <p>
-                    Alexander Pierce - Web Developer
-                    <small>Member since Nov. 2012</small>
-                  </p>
-                </li>
-                <li class="user-footer">
-                  <div class="text-center">
-                    <a href="#" class="btn btn-default btn-flat">退出登录</a>
-                  </div>
-                </li>
-              </ul>
-            </li>
-          </ul>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <!-- <img src="" class="user-image" alt="User Image"> -->
+                                <span class="hidden-xs"><?php echo session(C('USER_AUTH_KEY'))['real_name'] ?></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- <li class="user-header">
+                                    <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                                    <p>
+                                        Alexander Pierce - Web Developer
+                                        <small>Member since Nov. 2012</small>
+                                    </p>
+                                </li> -->
+                                <li class="user-footer">
+                                    <div class="text-center">
+                                        <a href="{:U('User/logout')}" class="btn btn-default btn-flat">退出登录</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- sidebar -->
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li class="header text-center">您好</li>
+                    <foreach name="nav_data" item="v">
+                        <!-- <neq name="v.nav_mca" value="Admin/ShowNav/Total">hidden-xs</neq> -->
+                        <li class="treeview <if condition="(MODULE_NAME.'/ShowNav/'.CONTROLLER_NAME) eq $v['nav_mca']">active</if>">
+                            <a href="#">
+                                <i class="fa fa-{$v.nav_ico}"></i>
+                                <span>{$v.nav_name}</span>
+                                <span class="pull-right-container">
+                                    <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+
+                            <ul class="treeview-menu">
+                                <foreach name="v._data" item="vv">
+                                    <li <if condition="(MODULE_NAME.'/'.CONTROLLER_NAME.'/'.ACTION_NAME) eq $vv['nav_mca']">class="active"</if> >
+                                        <a href="{:U($vv['nav_mca'])}"><i class="fa fa-circle-o text-primary"></i> {$vv.nav_name}</a>
+                                    </li>
+                                </foreach>
+                            </ul>
+                        </li>
+                    </foreach>
+                </ul>
+            </section>
+        </aside>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+
+                    <block name="header">标题</block>
+
+                </h1>
+            </section>
+
+            <section class="content">
+
+                <block name="content">主内容</block>
+
+            </section>
         </div>
-      </nav>
-    </header>
-
-    <!-- sidebar -->
-    <aside class="main-sidebar">
-      <section class="sidebar">
-        <!-- search form -->
-        <form action="#" method="get" class="sidebar-form">
-          <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search...">
-            <span class="input-group-btn">
-              <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i></button>
-            </span>
-          </div>
-        </form>
-        <!-- /.search form -->
-        <!-- sidebar menu -->
-        <ul class="sidebar-menu" data-widget="tree">
-          <li class="header">MAIN NAVIGATION</li>
-          <li class="active treeview">
-            <a href="#">
-              <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-              <span class="pull-right-container">
-                <i class="fa fa-angle-left pull-right"></i>
-              </span>
-            </a>
-            <ul class="treeview-menu">
-              <li class="active">
-                <a href="index.html"><i class="fa fa-circle-o text-red"></i> Dashboard v1</a>
-              </li>
-              <li>
-                <a href="index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a>
-              </li>
-            </ul>
-          </li>
-          <li class="treeview">
-            <a href="#">
-              <i class="fa fa-files-o"></i>
-              <span>Layout Options</span>
-              <span class="pull-right-container">
-                <span class="label label-primary pull-right">4</span>
-              </span>
-            </a>
-          </li>
-        </ul>
-        <!-- /.sidebar menu -->
-      </section>
-    </aside>
-
-    <!-- Content Wrapper -->
-    <div class="content-wrapper">
-      <section class="content-header">
-        <h1>
-
-          <block name="header">标题</block>
-
-        </h1>
-      </section>
-
-      <section class="content">
-
-        <block name="content">主内容</block>
-
-      </section>
     </div>
 
-    <!-- footer -->
-    <footer class="main-footer">
-      <div class="pull-right hidden-xs">
-        <b>Version</b> 1.0.1
-      </div>
-      <strong>Copyright &copy; 2014-2016 <a href="https://github.com/mirsent/mirse">Mirse</a>.</strong> All rights
-      reserved.
-    </footer>
-  </div>
+    <script src="__STATICS__/jquery/dist/jquery.min.js"></script>
+    <script src="__STATICS__/jquery-ui/jquery-ui.min.js"></script>
+    <script src="__STATICS__/bootstrap/js/bootstrap.min.js"></script>
+    <!-- pace -->
+    <script src="__STATICS__/pace/pace.min.js"></script>
+    <!-- validate -->
+    <script src="__Admin_JS__/jquery.form.js"></script>
+    <script src="__STATICS__/validate/jquery.validate.min.js"></script>
+    <!-- toastr -->
+    <script src="__STATICS__/toastr/toastr.min.js"></script>
+    <!-- dataTables -->
+    <script src="__STATICS__/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="__STATICS__/datatables/js/dataTables.bootstrap.min.js"></script>
+    <!-- layui -->
+    <script src="__STATICS__/layui/layui.js"></script>
+    <!-- sweetalert2 -->
+    <script src="__STATICS__/sweetalert2/sweetalert2.min.js"></script>
+    <!-- bootstrap-switch -->
+    <script src="__STATICS__/bootstrap-switch/bootstrap-switch.min.js"></script>
 
-  <script src="__STATICS__/jquery/dist/jquery.min.js"></script>
-  <script src="__STATICS__/jquery-ui/jquery-ui.min.js"></script>
-  <script src="__STATICS__/bootstrap/js/bootstrap.min.js"></script>
-  <!-- pace -->
-  <script src="__STATICS__/pace/pace.min.js"></script>
-  <!-- nicescroll -->
-  <script src="__STATICS__/nicescroll/jquery.nicescroll.min.js"></script>
-  <!-- validate -->
-  <script src="__Admin_JS__/jquery.form.js"></script>
-  <script src="__STATICS__/validate/jquery.validate.min.js"></script>
-  <!-- toastr -->
-  <script src="__STATICS__/toastr/toastr.min.js"></script>
-  <!-- dataTables -->
-  <script src="__STATICS__/datatables/js/jquery.dataTables.min.js"></script>
-  <script src="__STATICS__/datatables/js/dataTables.bootstrap.min.js"></script>
-  <!-- layui -->
-  <script src="__STATICS__/layui/layui.js"></script>
+    <!-- custom js -->
+    <script src="__Admin_JS__/adminlte.min.js"></script>
+    <script src="__Admin_JS__/admin.js"></script>
 
-  <!-- custom js -->
-  <script src="__Admin_JS__/adminlte.min.js"></script>
-  <script src="__Admin_JS__/admin.js"></script>
-
-  <block name="js">js</block>
+    <block name="js">js</block>
 </body>
 </html>

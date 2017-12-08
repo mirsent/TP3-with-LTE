@@ -1,0 +1,192 @@
+<extend name="Public/base" />
+<block name="css"></block>
+<block name="header">支付方式管理</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <!-- <button type="button" class="btn btn-default" id="detail"><i class="fa fa-search fa-fw"></i>详情</button> -->
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="delete"><i class="fa fa-trash-o fa-fw"></i>删除</button>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-striped     table-hover">
+                <thead>
+                    <tr>
+                        <th>支付方式</th>
+                        <th width="10%">状态</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">支付方式</label>
+                <div class="layui-input-block">
+                    <input type="text" name="p_type_name" placeholder="请输入支付方式" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="{:C('STATUS_Y')}" title="启用" checked>
+                    <input type="radio" name="status" value="{:C('STATUS_B')}" title="禁用">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+</block>
+<block name="js">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                dom: "<'row'<'col-sm-6'l><'col-sm-6'f>> t <'row'<'col-sm-6'i><'col-sm-6'p>>",
+                searching: true,
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw, // 绘制计数器
+                        limit: data.length, // 每页显示多少条数据
+                        start: data.start, // 开始的记录序号
+                        page: (data.start / data.length) + 1, // 当前页码
+                        order: data.order, // 排序
+                        search: $('.fuzzy-search').val(), // 模糊搜索
+
+                        p_type_name: $('[name="p_type_name"]').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "{:U('Sys/getPayTypeInfo')}",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            var returnData = {
+                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
+                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
+                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
+                                data: result.data // 返回的数据列表
+                            };
+                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "p_type_name" },
+                    {
+                        "data": "status",
+                        "class": "text-center",
+                        "render":function(data,type,full,meta){
+                            return data == {:C('STATUS_Y')}?'<span class="text-success">启用</span>':'<span class="text-danger">禁用</span>';
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+
+                }
+            });
+        });
+
+        $('.table tbody').on( 'click', 'tr', function () {
+            if ( $(this).hasClass('selected') ) {
+                $(this).removeClass('selected');
+            }
+            else {
+                oTable.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        } );
+
+        // 获取选中数据
+        function getSelectedData(dtObj){
+            return dtObj.row('.selected').data();
+        }
+
+
+        /************************* document ready end *****************************/
+
+        // 模糊搜索
+        $('.box-body').on('click', '#fuzzySearch', function() {
+            DTReload(oTable);
+        });
+        // 高级搜索
+        $('.box-body').on('click', '#advancedSearch', function() {
+            DTReload(oTable);
+        });
+
+        layui.use(['layer', 'form'], function() {
+            var layer = layui.layer,
+                form = layui.form;
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                formOptions.url = "{:U('Sys/addAndEdit')}";
+                formOptions.data = { 'table': "{$table}" };
+                formOptions.success = function(responseText, statusText) {
+                    if (responseText.status == 1) {
+                        toastr["success"]("操作成功", "OK");
+                        DTdraw(oTable);
+                        layer.closeAll();
+                    }
+                }
+                $('#actionForm').ajaxSubmit(formOptions);
+                return false;
+            });
+
+            // 新增
+            $('#add').on('click', function() {
+                layer.open({
+                    type: 1,
+                    title: '添加支付方式',
+                    content: $('#actionModal').html(),
+                    area: '40rem',
+                });
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function() {
+                var data = getSelectedData(oTable);
+                if (data) {
+                    layer.open({
+                        type: 1,
+                        title: '修改支付方式',
+                        content: $('#actionModal').html(),
+                        area: '40rem',
+                        success: function(layero, index){
+                            dataToForm('actionForm', data);
+                        }
+                    });
+                    form.render();
+                }
+                else
+                    toastr["error"]("请先选择需要操作对象", "");
+            });
+
+        });
+
+        // 删除
+        $('#delete').on('click', function() {
+            var data = getSelectedData(oTable);
+            if (data) {
+                var title = '确认删除支付方式 ' + data['p_type_name'] + ' ?';
+                set_status(title, '__URL__/setStatus', {
+                    id: data.id,
+                    status: {:C('STATUS_N')},
+                    table: "{$table}"
+                });
+            }
+            else
+                toastr["error"]("请先选择需要操作对象", "");
+        });
+    </script>
+</block>

@@ -1,0 +1,358 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__Admin_CSS__/phone.css">
+    <style type="text/css">
+        .text-left{text-align: left !important;}
+    </style>
+</block>
+<block name="header">
+    当日统计
+    <small><input type="text" class="form-control search-day" value="{:I('d')}" id="searchDay" placeholder="选择日期"></small>
+</block>
+<block name="content">
+    <div class="nav-tabs-custom clearfix">
+        <ul class="nav nav-tabs">
+            <foreach name="companys" item="v">
+                <li <eq name="key" value="0">class="active"</eq>>
+                    <a href="#tab_{$key}" data-c="{$v.company_id}" data-toggle="tab" aria-expanded="true">{$v.company_name}</a>
+                </li>
+            </foreach>
+            <eq name="hasTotalAuth" value="true">
+                <li>
+                    <a href="#tab_all" data-toggle="tab" aria-expanded="true">总计</a>
+                </li>
+            </eq>
+        </ul>
+        <div class="tab-content">
+            <foreach name="info" item="v">
+
+            <!-- 各公司统计 -->
+            <div class="tab-pane <eq name="key" value="0">active</eq>" id="tab_{$key}" data-c="{$v.company_id}">
+                <div class="col-sm-4">
+                    <div class="box box-success box-daily">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">日报统计</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <ul class="timeline">
+                                <li>
+                                    <i class="fa fa-yen bg-blue"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">应收</a>
+                                            {$v.receivable|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-yen bg-aqua"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">实收</a>
+                                            {$v.actual|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-cny bg-yellow"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">优惠金额</a>
+                                            {$v.discount|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-credit-card bg-purple"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">支付方式比例</a>
+                                        </h3>
+                                        <div class="timeline-body clearfix">
+                                            <foreach name="v.radio" item="vo" >
+                                                <div class="col-sm-12">
+                                                    <div class="clearfix">
+                                                        <span class="pull-left">{$vo.pay_type_name} {$vo.money|default=0}元</span>
+                                                        <small class="pull-right">{$vo.radio}</small>
+                                                    </div>
+                                                    <div class="progress xs">
+                                                        <div class="progress-bar <if condition="($vo.number lt 40)">progress-bar-yellow<elseif condition="$vo.number lt 70"/>progress-bar-aqua<else />progress-bar-green</if>" style="width: {$vo.radio};"></div>
+                                                    </div>
+                                                </div>
+                                            </foreach>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </foreach>
+
+            <!-- 总计 -->
+            <div class="tab-pane" id="tab_all">
+                <div class="col-sm-4">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">日报统计</h3>
+
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <ul class="timeline">
+                                <li>
+                                    <i class="fa fa-yen bg-blue"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">应收</a>
+                                            {$total.receivable|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-yen bg-aqua"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">实收</a>
+                                            {$total.actual|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-cny bg-yellow"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">优惠金额</a>
+                                            {$total.discount|default=0} 元
+                                        </h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="fa fa-credit-card bg-purple"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">
+                                            <a href="javascript:;">支付方式比例</a>
+                                        </h3>
+                                        <div class="timeline-body clearfix">
+                                            <foreach name="total.radio" item="vo" >
+                                                <div class="col-sm-12">
+                                                    <div class="clearfix">
+                                                        <span class="pull-left">{$vo.pay_type_name} {$vo.money|default=0}元</span>
+                                                        <small class="pull-right">{$vo.radio}</small>
+                                                    </div>
+                                                    <div class="progress xs">
+                                                        <div class="progress-bar <if condition="($vo.number lt 40)">progress-bar-yellow<elseif condition="$vo.number lt 70"/>progress-bar-aqua<else />progress-bar-green</if>" style="width: {$vo.radio};"></div>
+                                                    </div>
+                                                </div>
+                                            </foreach>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 餐品明细 -->
+            <div class="col-sm-8">
+                <div class="box box-success box-daily-map">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">餐品明细</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div id="dailyDetailsChart" style="width: 100%;height: 385px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 曲线图 -->
+            <div class="col-sm-12">
+                <div class="box box-success box-map">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">曲线图</h3>
+
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div id="dailyChart" style="width: 100%;height: 385px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<block name="js">
+    <script src="__Admin_JS__/echarts.common.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.box-map').height($('.box-daily').height());
+        });
+
+        /************************* document ready end *****************************/
+
+        var dailyChart = echarts.init(document.getElementById('dailyChart'));
+        dailyChart.showLoading();
+        dailyChart.setOption({
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            legend: {
+                data:['实收']
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    boundaryGap : false,
+                    data : [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,18,19,20,21,22,23,'24 (时)']
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            series : []
+        });
+        function dailyRender(day, companyId){
+            $.ajax({
+                type: "POST",
+                url: "{:U('Total/getDailyChart')}",
+                dataType:"json",
+                data: {
+                    'day': day,
+                    'company_id': companyId
+                },
+                success: function(result) {
+                    if (result) {
+                        dailyChart.hideLoading();
+                        dailyChart.setOption({
+                            series: [
+                                {
+                                    name: '实收',
+                                    type: 'line',
+                                    areaStyle: {normal: {}},
+                                    data: result.actual
+                                }
+                            ]
+                        });
+                    }
+                }
+            });
+        }
+        dailyRender("{:I('d')}", $('.tab-pane.active').attr('data-c'));
+
+        // 账单明细
+        var dailyDetailsChart = echarts.init(document.getElementById('dailyDetailsChart'));
+        dailyDetailsChart.showLoading();
+        dailyDetailsChart.setOption({
+            title : {
+                text: '餐品明细',
+                subtext: '',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient: 'horizontal',
+                bottom: 'bottom',
+                data: []
+            },
+            series : [
+                {
+                    name: '餐品明细',
+                    type: 'pie',
+                    radius : '55%',
+                    center: ['50%', '45%'],
+                    data:[],
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        });
+        function dailyDetailsRender(day, companyId){
+            $.ajax({
+                type: "POST",
+                url: "{:U('Total/getDailyDetailsChart')}",
+                dataType:"json",
+                data: {
+                    'day': day,
+                    'company_id': companyId
+                },
+                success: function(result) {
+                    if (result) {
+                        console.log(result)
+                        dailyDetailsChart.hideLoading();
+                        dailyDetailsChart.setOption({
+                            legend: {
+                                data: result.legend
+                            },
+                            series: [
+                                {
+                                    data: result.series
+                                }
+                            ]
+                        });
+                    }
+                }
+            });
+        }
+        dailyDetailsRender("{:I('d')}", $('.tab-pane.active').attr('data-c'));
+
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+            laydate.render({
+                elem: '#searchDay',
+                done: function(value, date){
+                    location.href = '__ACTION__/d/'+value;
+                }
+            });
+        });
+        $('.nav-tabs li').on('click', function() {
+            var companyId = $('a', this).attr('data-c'),
+                date = $('#searchDay').val();
+            dailyRender(date, companyId);
+            dailyDetailsRender(date, companyId);
+        });
+    </script>
+</block>

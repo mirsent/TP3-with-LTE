@@ -1,7 +1,7 @@
 <?php
 return array(
 
-//*************************************附加设置***********************************
+    /*附加设置*/
     'LOAD_EXT_CONFIG'   => 'db,webconfig',                  // 加载扩展配置文件
     'TMPL_PARSE_STRING' => array(                           // 模板相关配置
         '__PUBLIC__'    => __ROOT__.'/Public',
@@ -13,7 +13,8 @@ return array(
         '__Admin_JS__'  => __ROOT__.trim(TMPL_PATH,'.').'/Admin/Public/js',
         '__Admin_IMG__' => __ROOT__.trim(TMPL_PATH,'.').'/Admin/Public/img',
     ),
-//*************************************auth设置***********************************
+
+    /*auth设置*/
     'AUTH_CONFIG'       => array(
         'AUTH_USER'     => 'user'                           // 用户信息表
     ),

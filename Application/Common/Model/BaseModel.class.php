@@ -7,17 +7,10 @@ use Think\Model;
 class BaseModel extends Model{
 
     /**
-     * 添加数据
-     * @param  array $data  添加的数据
-     * @return int          新增的数据id
+     * 获取默认状态
      */
-    public function addData($data){
-        // 去除键值首尾的空格
-        foreach ($data as $k => $v) {
-            $data[$k]=trim($v);
-        }
-        $id=$this->add($data);
-        return $id;
+    public function get_default_status(){
+        return C('STATUS_Y');
     }
 
     /**
@@ -120,9 +113,4 @@ class BaseModel extends Model{
             );
         return $data;
     }
-
-
-
-
-
 }

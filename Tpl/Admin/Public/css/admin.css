@@ -1,15 +1,11 @@
 /* dt样式 */
 
+table.dataTable tbody tr.selected {
+    background-color: #B0BED9;
+}
+
 .table th{
-    text-align: center;
-}
-
-.table tbody tr td{
-    vertical-align: middle;
-}
-
-table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting{
-    padding-right: 0;
+    /* text-align: center; */
 }
 
 /* dt搜索 */
@@ -27,7 +23,25 @@ table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_des
 }
 
 /* layui */
-.layui-layer-content{
+.table .layui-form-switch{
+    margin-top: 0;
+    width: 52px;
+}
+.table .layui-form-switch i{
+    top: 2px;
+    left: 3px;
+}
+.table .layui-form-onswitch i{
+    left: 32px;
+}
+.table .layui-form-onswitch em{
+
+}
+
+.layui-form-label{
+    width: 100px;
+}
+#actionForm{
     padding: 20px;
 }
 
@@ -36,4 +50,17 @@ table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_des
     padding: 20px;
     font-size: 20px;
     color: #A7A7A7;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #3c8dbc;
 }

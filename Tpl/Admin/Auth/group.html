@@ -1,0 +1,228 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__STATICS__/multiselect/multi-select.css">
+    <style type="text/css">
+        .custom-header{
+            text-align: center;
+            color: #FFF;
+            background: #666;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</block>
+<block name="header">用户组管理</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">用户组列表</h3>
+            <div class="box-tools">
+                <button type="button" class="btn btn-primary" id="add">添加</button>
+            </div>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>分组名称</th>
+                        <th>对应规则</th>
+                        <th width="10%">状态</th>
+                        <th width="20%">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">分组名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" placeholder="请输入分组名称" autocomplete="off" lay-verify="required" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">权限规则</label>
+                <div class="layui-input-block">
+                    <select multiple="multiple" id="multiSelect" name="rules[]" lay-ignore>
+
+                        <foreach name="rules" item="v">
+                            <optgroup label='{$v.title}'>
+                                <foreach name="v._data" item="d">
+                                    <option value="{$v.id},{$d.id}">{$d.title}</option>
+                                </foreach>
+                            </optgroup>
+                        </foreach>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="id">
+        </form>
+    </script>
+</block>
+<block name="js">
+    <script src="__STATICS__/multiselect/jquery.multi-select.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                "paging": false,
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw, // 绘制计数器
+                        limit: data.length, // 每页显示多少条数据
+                        start: data.start, // 开始的记录序号
+                        page: (data.start / data.length) + 1, // 当前页码
+                        order: data.order, // 排序
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "__URL__/getAuthGroupInfo",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            var returnData = {
+                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
+                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
+                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
+                                data: result.data // 返回的数据列表
+                            };
+                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "title" },
+                    { "data": "rules" },
+                    {
+                        "data": "status",
+                        "class": "text-center",
+                        "render":function(data,type,full,meta){
+                            return data == {:C('STATUS_Y')} ? '<span class="text-success">启用</span>' : '<span class="text-warning">禁用</span>';
+                        }
+                    },
+                    {
+                        "data": "status",
+                        "class": "text-center",
+                        "orderable": false,
+                        "render":function(data,type,full,meta){
+                            var state = '',
+                                sOut = '<div class="btn-group"><button type="button" id="edit" class="btn btn-success">编辑</button>';
+                            state = data == {:C('STATUS_Y')} ? '<button type="button" id="ban" class="btn btn-warning">禁用</button>' : '<button type="button" id="allow" class="btn btn-info">启用</button>';
+                            sOut += state;
+                            sOut += '<button type="button" id="delete" class="btn btn-danger">删除</button></div>';
+
+                            return sOut;
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        layui.use(['layer', 'form'], function() {
+            layer = layui.layer,
+            form = layui.form;
+
+            form.on('submit(submit)', function(data) {
+                formOptions.url = "__URL__/inputGroup";
+                formOptions.data = { 'table': "{$table}" };
+                formOptions.success = function(responseText, statusText) {
+                    if (responseText.status == 1) {
+                        toastr["success"]("操作成功", "OK");
+                        DTdraw(oTable);
+                        layer.closeAll();
+                    }
+                }
+                $('#actionForm').ajaxSubmit(formOptions);
+                return false;
+            });
+        });
+
+        $('#add').on('click', function() {
+            layer.open({
+                type: 1,
+                title: '添加用户组',
+                content: $('#actionModal').html(),
+                skin: 'layui-layer-lan',
+                area: '40%',
+                success: function(){
+                    $('#multiSelect').multiSelect({
+                        selectableFooter: "<div id='selectAll' class='custom-header'>全选</div>",
+                        selectionFooter: "<div id='unSlectAll' class='custom-header'>取消全选</div>"
+                    });
+                    // 全选
+                    $('#actionForm').on('click', '#selectAll', function(event) {
+                        $('#multiSelect').multiSelect('select_all');
+                    });
+                    $('#actionForm').on('click', '#unSlectAll', function(event) {
+                        $('#multiSelect').multiSelect('deselect_all');
+                    });
+                }
+            });
+        });
+
+        // 编辑
+        $('.table').on('click', '#edit', function() {
+            var data = getCurRowData(oTable, $(this));
+            console.log(data.rules_arr)
+            layer.open({
+                type: 1,
+                title: '修改用户组',
+                content: $('#actionModal').html(),
+                skin: 'layui-layer-lan',
+                area: '40%',
+                success: function(layero, index){
+                    dataToForm('actionForm', data);
+                    $('#multiSelect').multiSelect();
+                    $('#multiSelect').multiSelect('select', data.rules_arr);
+                }
+            });
+        });
+
+        // 启用
+        $('.table').on('click', '#allow', function() {
+            var data = getCurRowData(oTable, $(this)),
+                title = '确认启用用户组 ' + data['title'] + ' ?';
+            set_status(title, '__URL__/setStatus', {
+                id: data.id,
+                status: {:C('STATUS_Y')},
+                table: "{$table}"
+            });
+        });
+
+        // 禁用
+        $('.table').on('click', '#ban', function() {
+            var data = getCurRowData(oTable, $(this)),
+                title = '确认禁用用户组 ' + data['title'] + ' ?';
+            set_status(title, '__URL__/setStatus', {
+                id: data.id,
+                status: {:C('STATUS_B')},
+                table: "{$table}"
+            });
+        });
+
+        // 删除
+        $('.table').on('click', '#delete', function() {
+            var data = getCurRowData(oTable, $(this)),
+                title = '确认删除用户组 ' + data['title'] + ' ?';
+            set_status(title, '__URL__/setStatus', {
+                id: data.id,
+                status: {:C('STATUS_N')},
+                table: "{$table}"
+            });
+        });
+    </script>
+</block>

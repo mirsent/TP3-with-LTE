@@ -1,0 +1,216 @@
+<extend name="Public/base" />
+<block name="css">
+    <link rel="stylesheet" href="__STATICS__/multiselect/multi-select.css">
+    <style type="text/css">
+        .custom-header{
+            text-align: center;
+            color: #FFF;
+            background: #666;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+    </style>
+</block>
+<block name="header">用户管理</block>
+<block name="content">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">用户列表</h3>
+            <div class="box-tools">
+
+            </div>
+        </div>
+        <div class="box-body">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>用户</th>
+                        <th>分组</th>
+                        <th>公司</th>
+                        <th>能查看公司权限</th>
+                        <th width="20%">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/html" id="actionModal">
+        <form class="layui-form" id="actionForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户分组</label>
+                <div class="layui-input-block">
+                    <select name="group_id" lay-verify="required" lay-search>
+                        <option value=""></option>
+                        <foreach name="groups" item="v">
+                            <option value="{$v.id}">{$v.title}</option>
+                        </foreach>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">公司</label>
+                <div class="layui-input-block">
+                    <select name="company_id" lay-verify="required" lay-search>
+                        <option value=""></option>
+                        <foreach name="company" item="v">
+                            <option value="{$v.id}">{$v.company_name}</option>
+                        </foreach>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">公司权限</label>
+                <div class="layui-input-block">
+                    <select multiple="multiple" id="multiSelect" name="company_auth[]" lay-ignore>
+
+                        <foreach name="company" item="v">
+                            <option value="{$v.id}">{$v.company_name}</option>
+                        </foreach>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+            <input type="hidden" name="uid">
+        </form>
+    </script>
+</block>
+<block name="js">
+    <script src="__STATICS__/multiselect/jquery.multi-select.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            oTable = $(".table").DataTable({
+                ajax: function(data, callback, settings) {
+                    param = {
+                        draw: data.draw, // 绘制计数器
+                        limit: data.length, // 每页显示多少条数据
+                        start: data.start, // 开始的记录序号
+                        page: (data.start / data.length) + 1, // 当前页码
+                        order: data.order, // 排序
+
+                        real_name: $('[name="real_name"]').val(),
+                        group_name: $('[name="group_name"]').val(),
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: "__URL__/getAuthUserInfo",
+                        data: param,
+                        dataType: "json",
+                        success: function(result) {
+                            var returnData = {
+                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
+                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
+                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
+                                data: result.data // 返回的数据列表
+                            };
+                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
+                        }
+                    });
+                },
+                columns: [
+                    { "data": "real_name" },
+                    { "data": "group_name" },
+                    { "data": "company_name" },
+                    { "data": "company_auth_name" },
+                    {
+                        "data": "status",
+                        "class": "text-center",
+                        "orderable": false,
+                        "render":function(data,type,full,meta){
+                            var sOut = '<div class="btn-group"><button type="button" id="edit" class="btn btn-success">编辑</button>';
+                            sOut += '<button type="button" id="delete" class="btn btn-danger">删除</button></div>';
+                            return sOut;
+                        }
+                    }
+                ],
+                initComplete: function(settings, json) {
+                    // 高级搜索
+                    var advancedHtml = '<form class="form-inline well advanced-form">';
+
+                    advancedHtml += '<div class="form-group"><label>用户:</label>';
+                    advancedHtml += '<input type="text" class="form-control" name="real_name" placeholder="请输入用户"></div>';
+                    advancedHtml += '<div class="form-group"><label>分组:</label>';
+                    advancedHtml += '<input type="text" class="form-control" name="group_name" placeholder="请输入分组"></div>';
+                    advancedHtml += '<button type="button" class="btn btn-default" id="advancedSearch"><i class="fa fa-search"></i>查询</button></form>';
+
+                    $('.search-item').append(DTSearchGroup);
+                    $('#searchCollapse').append(advancedHtml);
+                }
+            });
+        });
+
+        /************************* document ready end *****************************/
+
+        // 模糊搜索
+        $('.box-body').on('click', '#fuzzySearch', function() {
+            oTable.search( $(this).prev().val() ).draw();
+        });
+        // 高级搜索
+        $('.box-body').on('click', '#advancedSearch', function() {
+            DTReload(oTable);
+        });
+
+        layui.use(['layer', 'form'], function() {
+            layer = layui.layer,
+            form = layui.form;
+
+            form.on('submit(submit)', function(data) {
+                formOptions.url = "__URL__/editAccess";
+                formOptions.success = function(responseText, statusText) {
+                    if (responseText.status == 1) {
+                        toastr["success"]("操作成功", "OK");
+                        DTdraw(oTable);
+                        layer.closeAll();
+                    }
+                }
+                $('#actionForm').ajaxSubmit(formOptions);
+                return false;
+            });
+        });
+
+        // 编辑
+        $('.table').on('click', '#edit', function() {
+            var data = getCurRowData(oTable, $(this));
+            layer.open({
+                type: 1,
+                shadeClose: true,
+                title: '修改用户 '+data.real_name+' 权限',
+                content: $('#actionModal').html(),
+                skin: 'layui-layer-lan',
+                area: ['40%', '500px'],
+                success: function(layero, index){
+                    dataToForm('actionForm', data);
+                    $('#multiSelect').multiSelect({
+                        selectableFooter: "<div id='selectAll' class='custom-header'>全选</div>",
+                        selectionFooter: "<div id='unSlectAll' class='custom-header'>取消全选</div>"
+                    });
+                    $('#multiSelect').multiSelect('select', data.company_auth_arr);
+                    // 全选
+                    $('#actionForm').on('click', '#selectAll', function(event) {
+                        $('#multiSelect').multiSelect('select_all');
+                    });
+                    $('#actionForm').on('click', '#unSlectAll', function(event) {
+                        $('#multiSelect').multiSelect('deselect_all');
+                    });
+                }
+            });
+            form.render();
+        });
+
+        // 删除
+        $('.table').on('click', '#delete', function() {
+            var data = getCurRowData(oTable, $(this)),
+                title = '确认删除用户 ' + data.real_name + ' ?';
+            set_status(title, '__URL__/deleteUser', {
+                uid: data.uid,
+            });
+        });
+    </script>
+</block>

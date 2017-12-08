@@ -7,22 +7,14 @@ use Common\Model\BaseModel;
 class AuthRuleModel extends BaseModel{
 
 	/**
-	 * 删除数据
-	 * @param	array	$map	where语句数组形式
-	 * @return	boolean			操作是否成功
+	 * 获取权限规则列表
 	 */
-	public function deleteData($map){
-		$count=$this
-			->where(array('pid'=>$map['id']))
-			->count();
-		if($count!=0){
-			return false;
-		}
-		$result=$this->where($map)->delete();
-		return $result;
+	public function getAuthRuleList(){
+		$map['status'] = C('STATUS_Y');
+		$data = $this
+			->where($map)
+			->getField('name', true);
+		return $data;
 	}
-
-
-
 
 }

@@ -209,7 +209,7 @@ function get_uid(){
  * @param  integer $status    状态码： 0：成功  1：失败
  * @return string                 json格式的数据
  */
-function ajax_return($data='',$msg='成功',$status=1){
+function ajax_return($status=1,$msg='成功',$data=''){
     $all_data=array(
         'status'=>$status,
         'msg'=>$msg,

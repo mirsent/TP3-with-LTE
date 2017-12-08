@@ -6,6 +6,10 @@ use Common\Model\BaseModel;
  */
 class AuthGroupModel extends BaseModel{
 
+	protected $_auto=array(
+	    array('status','get_default_status',1,'callback')
+	);
+
 	/**
 	 * 传递主键id删除数据
 	 * @param  array   $map  主键id
@@ -20,7 +24,4 @@ class AuthGroupModel extends BaseModel{
 		$result=D('AuthGroupAccess')->deleteData($group_map);
 		return $result;
 	}
-
-
-
 }
