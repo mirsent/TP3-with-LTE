@@ -6,19 +6,21 @@ use Common\Controller\AdminBaseController;
  */
 class InputController extends AdminBaseController{
 
+    public function daily(){
+        $this->display();
+    }
+
     /**
      * 获取日列表
      */
     public function getDailyInfo(){
-        //获取Datatables发送的参数
-        $draw = I('draw');
-        $mirse = D('Daily');
+        $ms = D('Daily');
         $map = [
             'status' => C('STATUS_Y'),
-            'company_id' => array('in', session(C('SNAME'))['company_auth'])
+            'company_id' => array('in', session(C('USER_AUTH_KEY'))['company_auth'])
         ];
 
-        $recordsTotal = $mirse->where($map)->count(); // 没有过滤的记录数
+        $recordsTotal = $ms->where($map)->count(); // 没有过滤的记录数
 
         // 搜索
         $search = I('search');
@@ -36,7 +38,7 @@ class InputController extends AdminBaseController{
             $map['start_time'] = array('between', [$dayStart, $dayEnd]);
         }
 
-        $recordsFiltered = $mirse->where($map)->count(); // 过滤后的记录数
+        $recordsFiltered = $ms->where($map)->count(); // 过滤后的记录数
 
         // 排序
         $orderObj = I('order')[0];
@@ -45,13 +47,13 @@ class InputController extends AdminBaseController{
         if(isset(I('order')[0])){
             $i = intval($orderColumn);
             switch($i){
-                case 0: $mirse->order('account_number '.$orderDir); break;
-                case 1: $mirse->order('start_time '.$orderDir); break;
-                case 2: $mirse->order('end_time '.$orderDir); break;
-                case 3: $mirse->order('pay_type_id '.$orderDir); break;
-                case 4: $mirse->order('receivable '.$orderDir); break;
-                case 5: $mirse->order('actual '.$orderDir); break;
-                case 6: $mirse->order('discount '.$orderDir); break;
+                case 0: $ms->order('account_number '.$orderDir); break;
+                case 1: $ms->order('start_time '.$orderDir); break;
+                case 2: $ms->order('end_time '.$orderDir); break;
+                case 3: $ms->order('pay_type_id '.$orderDir); break;
+                case 4: $ms->order('receivable '.$orderDir); break;
+                case 5: $ms->order('actual '.$orderDir); break;
+                case 6: $ms->order('discount '.$orderDir); break;
                 default: break;
             }
         }
@@ -61,7 +63,7 @@ class InputController extends AdminBaseController{
         $limit = I('limit');  // 每页显示条数
         $page = I('page');    // 第几页
 
-        $infos = $mirse->where($map)->page($page, $limit)->select();
+        $infos = $ms->where($map)->page($page, $limit)->select();
 
         $payType = M('pay_type')->where(['status'=>C('STATUS_Y')])->getField('id,p_type_name');
         $company = M('company')->where(['status'=>C('STATUS_Y')])->getField('id,company_name');
@@ -79,7 +81,7 @@ class InputController extends AdminBaseController{
         }
 
         echo json_encode(array(
-            "draw" => intval($draw),
+            "draw" => intval(I('draw')),
             "recordsTotal" => intval($recordsTotal),
             "recordsFiltered" => intval($recordsFiltered),
             "data" => $infos
@@ -131,119 +133,10 @@ class InputController extends AdminBaseController{
     public function deleteDaily(){
         $daily = D('Daily');
         $daily->create();
-        $map['id'] = I('id');
-        $daily->status = C('STATUS_N');
-        $res = $daily->editData($map, null);
+        $res = $daily->where(['id'=>I('id')])->save();
 
         if ($res === false) {
             ajax_return(0, '删除日报出错');
-        }
-        ajax_return(1);
-    }
-
-
-
-
-
-
-    /**************************************** 支出 ******************************************/
-
-    public function getExpensesInfo(){
-        //获取Datatables发送的参数
-        $draw = I('draw');
-
-        $mirse = D('Expenses');
-        $map['status'] = C('STATUS_Y');
-
-        $recordsTotal = $mirse->where($map)->count(); // 没有过滤的记录数
-
-        // 搜索
-        $search = I('search');
-        $purpose = I('purpose_id');
-        $searchDate = I('search_date');
-        if (strlen($search)>0) {
-            $map['remarks'] = array('like', '%'.$search.'%');
-        }
-        if (strlen($purpose)>0) {
-            $map['purpose_id'] = $purpose;
-        }
-        if (strlen($searchDate)>0) {
-            $map['spending_time'] = strtotime($searchDate);
-        }
-
-        $recordsFiltered = $mirse->where($map)->count(); // 过滤后的记录数
-
-        // 排序
-        $orderObj = I('order')[0];
-        $orderColumn = $orderObj['column']; // 排序列，从0开始
-        $orderDir = $orderObj['dir'];       // ase desc
-        if(isset(I('order')[0])){
-            $i = intval($orderColumn);
-            switch($i){
-                case 0: $mirse->order('purpose_id '.$orderDir); break;
-                case 1: $mirse->order('spending_time '.$orderDir); break;
-                case 2: $mirse->order('remarks '.$orderDir); break;
-                default: break;
-            }
-        }
-
-        // 分页
-        $start = I('start');  // 开始的记录序号
-        $limit = I('limit');  // 每页显示条数
-        $page = I('page');    // 第几页
-
-        $infos = $mirse->where($map)->page($page, $limit)->select();
-        $payType = M('purpose')->where(['status'=>C('STATUS_Y')])->getField('id, purpose_name');
-        $company = M('company')->where(['status'=>C('STATUS_Y')])->getField('id,company_name');
-        foreach ($infos as $key => $value) {
-            $infos[$key]['purpose_name'] = $payType[$value['purpose_id']];
-            $infos[$key]['company_name'] = $company[$value['company_id']];
-            $infos[$key]['spending_time'] = date('Y-m-d', $value['spending_time']);
-        }
-
-        echo json_encode(array(
-            "draw" => intval($draw),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
-    }
-
-    /**
-     * 录入支出
-     */
-    public function inputExpenses(){
-        $expenses = D('Expenses');
-        $expenses->create();
-        $spendingTime = $expenses->spending_time;
-        $expenses->spending_time = strtotime($spendingTime);
-
-        $id = I('id');
-        if ($id) {
-            $map['id'] = $id;
-            $res = $expenses->editData($map, null);
-        } else {
-            $res = $expenses->add();
-        }
-
-        if ($res === false) {
-            ajax_return(0, '录入支出出错');
-        }
-        ajax_return(1);
-    }
-
-    /**
-     * 删除支出
-     */
-    public function deleteExpenses(){
-        $expenses = D('Expenses');
-        $expenses->create();
-        $map['id'] = I('id');
-        $expenses->status = C('STATUS_N');
-        $res = $expenses->editData($map, null);
-
-        if ($res === false) {
-            ajax_return(0, '删除支出出错');
         }
         ajax_return(1);
     }

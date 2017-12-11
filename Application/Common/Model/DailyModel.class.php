@@ -14,11 +14,11 @@ class DailyModel extends BaseModel{
     );
 
     static function get_user_id(){
-        return session(C('SNAME'))['id'];
+        return session(C('USER_AUTH_KEY'))['id'];
     }
 
     static function get_company_id(){
-        return session(C('SNAME'))['company_id'];
+        return session(C('USER_AUTH_KEY'))['company_id'];
     }
 
     static function get_account_number(){

@@ -17,4 +17,16 @@ class AuthRuleModel extends BaseModel{
 		return $data;
 	}
 
+	/**
+	 * 根据id获取规则
+	 * @param string $rules 规则id(1,2)
+	 * @return string       规则名称(规则1;规则2)
+	 */
+	public function getAuthByIds($rules){
+	    foreach (explode(',', $rules) as $v) {
+	        $arr.= $this->getFieldById($v, 'title').';';
+	    }
+	    return trim($arr, ';');
+	}
+
 }

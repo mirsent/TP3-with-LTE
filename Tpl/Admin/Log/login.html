@@ -13,11 +13,6 @@
     <!--[if lt IE 9]>
     <meta http-equiv="refresh" content="0;ie.html" />
     <![endif]-->
-    <script>
-        if (window.top !== window.self) {
-            window.top.location = window.location;
-        }
-    </script>
 </head>
 
 <body class="signin" style="background: url(__Admin_IMG__/login-background.jpg)">
@@ -35,7 +30,7 @@
                     </div>
                     <!-- <a href="{:U('Register/index')}" class="register">还没有帐号？点我注册！</a> -->
                     <div class="v-group" style="margin-top: 20px;">
-                        <button id="loginBtn" class="btn btn-primary btn-block">登录</button>
+                        <button id="loginBtn" class="btn btn-success btn-block">登录</button>
                     </div>
                 </form>
             </div>
@@ -53,7 +48,7 @@
                 },
                 onkeyup: false,
                 focusCleanup: true,
-                onfocusout: function(element) { $(element).valid(); }, //当丢失焦点时才触发验证请求
+                onfocusout: function(element) { $(element).valid(); },
                 rules : {
                     user_name: {
                         remote:{
@@ -130,13 +125,13 @@
                 $.ajax({
                     cache: true,
                     type: "POST",
-                    url: '__URL__/login',
+                    url: '__URL__/log_in',
                     data: formData,
                     dataType:"json",
                     async: true,
                     success: function(result) {
-                        if (result) {
-                            location.href = "{:U('Input/daily')}";
+                        if (result.status ==1) {
+                            location.href = "{:U('Admin/Index/index')}";
                         }
                     }
                 });

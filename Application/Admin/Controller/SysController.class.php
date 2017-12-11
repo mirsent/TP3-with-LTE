@@ -9,17 +9,28 @@ class SysController extends AdminBaseController{
      * 支付方式管理
      */
     public function pay_type(){
-        $this->assign('table', 'PayType');
+        $assign = [
+            'table' => 'PayType',
+            'name' => 'p_type_name',
+            'title' => '支付方式'
+        ];
+        $this->assign($assign);
         $this->display();
     }
 
-    /**
-     * 获取支付方式列表
-     * @return arr 支付方式数组
-     */
-    public function getPayTypeInfo(){
+    public function company(){
+        $assign = [
+            'table' => 'Company',
+            'name' => 'company_name',
+            'title' => '公司'
+        ];
+        $this->assign($assign);
+        $this->display();
+    }
+
+    public function getDtInfo(){
         $ms = D(I('table'));
-        $infos = $ms->getDTInfo();
+        $infos = $ms->getDataForDt();
         echo json_encode([
             "data" => $infos
         ], JSON_UNESCAPED_UNICODE);
@@ -81,19 +92,13 @@ class SysController extends AdminBaseController{
      * 获取菜单列表
      */
     public function getAdminNavInfo(){
-        $draw = I('draw');
         $ms = D('AdminNav');
         $map['status'] = array('neq', C('STATUS_N'));
-
-        $recordsTotal = $recordsFiltered = $ms->where($map)->count();
         $infos = $ms->where($map)->getTreeData();
 
-        echo json_encode(array(
-            "draw" => intval($draw),
-            "recordsTotal" => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
+        echo json_encode([
             "data" => $infos
-        ), JSON_UNESCAPED_UNICODE);
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     /**

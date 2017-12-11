@@ -11,10 +11,9 @@ class AdminBaseController extends BaseController{
     public function _initialize(){
         parent::_initialize();
 
-        $auth=new \Think\Auth();
+        $auth = new \Think\Auth();
         $rule_name = MODULE_NAME.'/'.CONTROLLER_NAME.'/'.ACTION_NAME;
         $authRule = D('AuthRule')->getAuthRuleList();
-        array_push($authRule,C('USER_AUTH_ALLOW'));
         $isVerify = in_array($rule_name,$authRule);
         if ($isVerify) {
             $result = $auth->check($rule_name,$_SESSION[C('USER_AUTH_KEY')]['id']);

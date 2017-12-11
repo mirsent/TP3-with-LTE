@@ -5,10 +5,7 @@ return array(
 
     /*认证相关*/
     'USER_AUTH_KEY'     => 'reimbursement', // 用户认证SESSION标记
-    'USER_AUTH_GATEWAY' => 'User/login', // 默认认证网关
-    'USER_AUTH_ALLOW'   => [
-        'Admin/Index/index'
-    ], // 允许访问列表
+    'USER_AUTH_GATEWAY' => 'Log/login', // 默认认证网关
 
     /*状态*/
     'STATUS_N'          => 0, // 删除状态

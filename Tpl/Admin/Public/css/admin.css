@@ -1,11 +1,24 @@
 /* dt样式 */
-
 table.dataTable tbody tr.selected {
     background-color: #B0BED9;
 }
-
+.table tr{
+    cursor: pointer;
+}
 .table th{
-    /* text-align: center; */
+    text-align: left;
+}
+.search-box{
+    border-radius: 3px;
+    margin: 0 0 20px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid #eee;
+}
+.search-box .layui-input{
+    height: 34px;
+}
+.search-box label{
+    color: #FFF;
 }
 
 /* dt搜索 */
@@ -23,26 +36,29 @@ table.dataTable tbody tr.selected {
 }
 
 /* layui */
-.table .layui-form-switch{
-    margin-top: 0;
-    width: 52px;
-}
-.table .layui-form-switch i{
-    top: 2px;
-    left: 3px;
-}
-.table .layui-form-onswitch i{
-    left: 32px;
-}
-.table .layui-form-onswitch em{
-
-}
-
 .layui-form-label{
     width: 100px;
 }
 #actionForm{
     padding: 20px;
+}
+
+/* tagsinput */
+.layui-form .bootstrap-tagsinput{
+    width: 100%;
+    line-height: 28px;
+    border: 1px solid #E6E6E6;
+    border-radius: 2px;
+    box-shadow: none;
+}
+
+/* multiselect */
+.multiselect-header{
+    text-align: center;
+    color: #FFF;
+    background: #3c8dbc;
+    cursor: pointer;
+    border-radius: 3px;
 }
 
 /* detail */
@@ -61,6 +77,27 @@ table.dataTable tbody tr.selected {
     background-color: #F5F5F5;
 }
 
-::-webkit-scrollbar-thumb {
+/*
+ * Skin: Blue
+ */
+.skin-blue .layui-layer-title,
+.skin-blue .layui-btn-normal,
+.skin-blue .layui-form-select dl dd.layui-this,
+.skin-blue .layui-form-checked[lay-skin=primary] i,
+.skin-blue .bootstrap-tagsinput .label,
+.skin-blue ::-webkit-scrollbar-thumb{
     background-color: #3c8dbc;
+    color: #FFF;
+}
+.skin-blue .search-box{
+    background-color: #3c8dbc;
+    border-color: #0a6396;
+}
+.skin-blue .layui-form-radioed i,
+.skin-blue .layui-form-radio i:hover{
+    color: #3c8dbc;
+}
+.skin-blue .layui-form-checkbox[lay-skin=primary]:hover i,
+.skin-blue .layui-form-checked[lay-skin=primary] i{
+    border-color: #3c8dbc;
 }

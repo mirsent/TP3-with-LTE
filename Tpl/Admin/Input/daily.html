@@ -1,27 +1,15 @@
 <extend name="Public/base" />
 <block name="css">
     <link rel="stylesheet" href="__STATICS__/tagsinput/bootstrap-tagsinput.css">
-    <style type="text/css">
-        .bootstrap-tagsinput{
-            width: 100%;
-            line-height: 28px;
-            border: 1px solid #E6E6E6;
-            border-radius: 2px;
-            box-shadow: none;
-        }
-        .tag.label{
-            background-color: #5FB878 !important;
-        }
-    </style>
 </block>
 <block name="header">日报管理</block>
 <block name="content">
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">日报列表</h3>
-            <div class="box-tools">
-                <button type="button" class="btn btn-primary" id="add">录入</button>
-            </div>
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="detail"><i class="fa fa-search fa-fw"></i>详情</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="delete"><i class="fa fa-trash-o fa-fw"></i>删除</button>
         </div>
         <div class="box-body">
             <table class="table table-bordered table-hover">
@@ -35,10 +23,11 @@
                         <th>实收</th>
                         <th>优惠金额</th>
                         <th>公司</th>
-                        <!-- <th width="25%">明细</th> -->
-                        <th width="16%">操作</th>
                     </tr>
                 </thead>
+                <tbody>
+
+                </tbody>
             </table>
         </div>
     </div>
@@ -101,12 +90,12 @@
             oTable = $(".table").DataTable({
                 ajax: function(data, callback, settings) {
                     param = {
-                        draw: data.draw, // 绘制计数器
-                        limit: data.length, // 每页显示多少条数据
-                        start: data.start, // 开始的记录序号
-                        page: (data.start / data.length) + 1, // 当前页码
-                        order: data.order, // 排序
-                        search: $('.fuzzy-search').val(), // 模糊搜索
+                        draw: data.draw,
+                        limit: data.length,
+                        start: data.start,
+                        page: (data.start / data.length) + 1,
+                        order: data.order,
+                        search: $('.fuzzy-search').val(),
 
                         pay_type_id: $('[name="pay_type_id"]').val(),
                         search_date: $('[name="search_date"]').val()
@@ -136,27 +125,12 @@
                     { "data": "actual", "class": "text-right" },
                     { "data": "discount", "class": "text-right" },
                     { "data": "company_name" },
-                    // { "data": "details" },
-                    {
-                        "data": null,
-                        "class": "text-center",
-                        "orderable": false,
-                        "render":function(data,type,full,meta){
-                            var sOut =
-                                '<div class="btn-group">' +
-                                '<button type="button" class="btn btn-info" id="detail">明细</button>' +
-                                '<button type="button" class="btn btn-success" id="edit">编辑</button>' +
-                                '<button type="button" class="btn btn-danger" id="delete">删除</button>' +
-                                '</div>';
-                            return sOut;
-                        }
-                    }
                 ],
                 initComplete: function(settings, json) {
                     // 高级搜索
-                    var advancedHtml = '<form class="form-inline well advanced-form">';
+                    var advancedHtml = '<form class="form-inline search-box advanced-form">';
                     advancedHtml += '<div class="form-group layui-form"><label>支付方式：</label>';
-                    advancedHtml += '<div class="layui-input-inline"><select name="pay_type_id"><option value=""></option><foreach name="payType" item="v"><option value="{$v.id}">{$v.p_type_name}</option></foreach></select></div>';
+                    advancedHtml += '<div class="layui-inline"><select name="pay_type_id"><option value=""></option><foreach name="payType" item="v"><option value="{$v.id}">{$v.p_type_name}</option></foreach></select></div>';
 
                     advancedHtml += '<div class="form-group"><label>日期：</label>';
                     advancedHtml += '<input type="text" class="form-control" id="searchDate" name="search_date" placeholder="请选择日期"></div>';
@@ -188,35 +162,21 @@
         });
 
         layui.use(['layer', 'form', 'laydate'], function() {
-            layer = layui.layer,
-            form = layui.form;
-            laydate = layui.laydate;
+            var layer = layui.layer,
+                form = layui.form;
+                laydate = layui.laydate;
 
-            form.on('submit(submit)', function(data) {
-                formOptions.url = "__URL__/inputDaily";
-                formOptions.success = function(responseText, statusText) {
-                    if (responseText.status == 1) {
-                        toastr["success"]("添加成功", "OK");
-                        DTdraw(oTable);
-                        layer.closeAll();
-                    }
-                }
-                $('#actionForm').ajaxSubmit(formOptions);
-                return false;
+            // 详情
+            $('#detail').on('click', function() {
+                getSelectedData(oTable, function(data){
+                    layui_detail('餐品明细','__URL__/daily_detail/id/'+data['id'],['40%', '300px']);
+                });
             });
-        });
 
-        // 新增
-        $('#add').on('click', function() {
-            layer.open({
-                type: 1,
-                shadeClose: true,
-                title: '录入日报',
-                content: $('#actionModal').html(),
-                skin: 'layui-layer-lan',
-                area: '40%',
-                success: function(layero, index){
-                    $('#tagsinput').tagsinput();
+            // 新增
+            $('#add').on('click', function() {
+                layui_form('录入日报', function(){
+                    $('#tagsinput').tagsinput({'tagClass':'label'});
                     laydate.render({
                         elem: '#startTime',
                         type: 'datetime',
@@ -229,84 +189,45 @@
                             });
                         }
                     });
-                }
+                }, '50rem');
+                form.render();
             });
-            form.render();
-        });
 
-        // 编辑
-        $('.table').on('click', '#edit', function() {
-            var data = getCurRowData(oTable, $(this));
-            layer.open({
-                type: 1,
-                shadeClose: true,
-                title: '修改日报',
-                content: $('#actionModal').html(),
-                skin: 'layui-layer-lan',
-                area: '40%',
-                success: function(layero, index){
-                    dataToForm('actionForm', data);
-                    $('#tagsinput').tagsinput();
-                    laydate.render({
-                        elem: '#startTime',
-                        type: 'datetime',
-                        min: 0,
-                        done: function(value){
-                            laydate.render({
-                                elem: '#endTime',
-                                type: 'datetime',
-                                min: value,
-                            });
-                        }
-                    });
-                }
-            });
-            form.render();
-        });
-
-        $('.table').on('click', '#delete', function() {
-            var data = getCurRowData(oTable, $(this));
-            swal.queue([{
-                title: '确认删除日报 ' + data.account_number +' ?',
-                type: 'question',
-                confirmButtonText: '确定',
-                showLoaderOnConfirm: true,
-                preConfirm: function () {
-                    return new Promise(function (resolve) {
-                        $.ajax({
-                            type: "POST",
-                            url: "__URL__/deleteDaily",
-                            data: {
-                                id: data.id
-                            },
-                            dataType:"json",
-                            success: function(result) {
-                                if (result.status == 1) {
-                                    toastr["success"]("删除成功", "OK");
-                                    swal.close();
-                                    DTdraw(oTable);
-                                }
+            // 编辑
+            $('#edit').on('click', function(){
+                getSelectedData(oTable, function(data){
+                    layui_form('修改日报', function(){
+                        dataToForm('actionForm', data);
+                        $('#tagsinput').tagsinput({'tagClass':'label'});
+                        laydate.render({
+                            elem: '#startTime',
+                            type: 'datetime',
+                            min: 0,
+                            done: function(value){
+                                laydate.render({
+                                    elem: '#endTime',
+                                    type: 'datetime',
+                                    min: value,
+                                });
                             }
                         });
-                    })
-                }
-            }]).catch(swal.noop);
+                    }, '50rem');
+                    form.render();
+                });
+            });
+
+            // 提交
+            form.on('submit(submit)', function(data) {
+                submit_form("{:U('Input/inputDaily')}");
+            });
         });
 
-        // 详情
-        $('.table').on('click', '#detail', function() {
-            var data = getCurRowData(oTable, $(this));
-            layui.use('layer', function(){
-                var layer = layui.layer;
-                layer.open({
-                    type: 2,
-                    shade: 0.8,
-                    anim: 5,
-                    shadeClose: true,
-                    title: '餐品明细',
-                    content: '__URL__/daily_detail/id/'+data['id'],
-                    skin: 'layui-layer-lan',
-                    area: ['40%', '300px'],
+        $('#delete').on('click', function() {
+            getSelectedData(oTable, function(data){
+                var title = '确认删除日报 ' + data.account_number +' ?';
+                set_status(title, '__URL__/deleteDaily', {
+                    id: data.id,
+                    status: {:C('STATUS_N')},
                 });
             });
         });

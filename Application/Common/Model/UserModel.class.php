@@ -23,6 +23,21 @@ class UserModel extends BaseModel{
     }
 
     /**
+     * 获取用户详细信息
+     */
+    public function getUserInfo($map){
+        $data = $this
+            ->alias('u')
+            ->join('__AUTH_GROUP_ACCESS__ aga ON aga.uid = u.id','LEFT')
+            ->join('__AUTH_GROUP__ ag ON ag.id = aga.group_id','LEFT')
+            ->join('__COMPANY__ c ON c.id = u.company_id')
+            ->field('u.*,aga.*,ag.title as group_name,c.company_name')
+            ->where($map)
+            ->select();
+        return $data;
+    }
+
+    /**
      * 根据条件获取用户信息
      */
     public function getUserData($map){

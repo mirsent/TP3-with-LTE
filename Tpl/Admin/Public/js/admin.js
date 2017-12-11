@@ -1,3 +1,6 @@
+// 系统常量
+var STATUS_Y = 1;
+
 // To make Pace works on Ajax calls
 $(document).ajaxStart(function() {
     Pace.restart();
@@ -51,30 +54,49 @@ toastr.options = {
 }
 
 // dataTables
-var DTLang = {
-    "sProcessing": "处理中...",
-    "sLengthMenu": "显示 _MENU_ 项结果",
-    "sZeroRecords": "没有匹配结果",
-    "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-    "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
-    "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
-    "sInfoPostFix": "",
-    "sSearch": "搜索:",
-    "sUrl": "",
-    "sEmptyTable": "表中数据为空",
-    "sLoadingRecords": "载入中...",
-    "sInfoThousands": ",",
-    "oPaginate": {
-        "sFirst": "首页",
-        "sPrevious": "上页",
-        "sNext": "下页",
-        "sLast": "末页"
+var DT = {
+    DTLang: {
+        "sProcessing": "处理中...",
+        "sLengthMenu": "显示 _MENU_ 项结果",
+        "sZeroRecords": "没有匹配结果",
+        "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+        "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+        "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+        "sInfoPostFix": "",
+        "sSearch": "搜索:",
+        "sUrl": "",
+        "sEmptyTable": "没有数据",
+        "sLoadingRecords": "载入中...",
+        "sInfoThousands": ",",
+        "oPaginate": {
+            "sFirst": "首页",
+            "sPrevious": "上页",
+            "sNext": "下页",
+            "sLast": "末页"
+        },
+        "oAria": {
+            "sSortAscending": ": 以升序排列此列",
+            "sSortDescending": ": 以降序排列此列"
+        }
     },
-    "oAria": {
-        "sSortAscending": ": 以升序排列此列",
-        "sSortDescending": ": 以降序排列此列"
+    COLUMN: {
+        STATUS: {
+            "data": "status",
+            "class": "text-center",
+            "render":function (data,type,full,meta) {
+                return data == STATUS_Y ? '<small class="label label-success">启用</small>' : '<small class="label label-danger">禁用</small>';
+            }
+        }
+    },
+    RENDER: {
+        ELLIPSIS: function (data,type,full,meta) {
+
+        },
+        FA: function (data,type,full,meta) {
+            return '<i class="fa fa-'+data+'"></i>';
+        }
     }
-}
+};
 
 var DTSearchGroup =
     '<div class="btn-group">' +
@@ -90,7 +112,7 @@ $.extend($.fn.dataTable.defaults, {
         "<'row'<'col-sm-12'<'#searchCollapse.collapse'>>>" +
         "<'row'<'col-sm-12'tr>>" +
         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-    language: DTLang, // 提示信息
+    language: DT.DTLang, // 提示信息
     autoWidth: false, // 自动调整列宽
     processing: true, // 加载提示
     serverSide: true, // 服务器端分页
@@ -99,18 +121,10 @@ $.extend($.fn.dataTable.defaults, {
     order: [], // 默认排序查询
     pagingType: "simple_numbers", // 分页样式：simple,simple_numbers,full,full_numbers
     columnDefs: [
-        // {
-        //     "targets": -1,
-        //     "data": null,
-        //     "defaultContent":
-        //         '<div class="btn-group">' +
-        //         '<button type="button" class="btn btn-info" id="detail">详情</button>' +
-        //         '<button type="button" class="btn btn-success" id="edit">编辑</button>' +
-        //         '<button type="button" class="btn btn-danger" id="delete">删除</button>' +
-        //         '</div>',
-        //     "class": "text-center",
-        //     "searchable": false
-        // }
+        {
+            "targets": -1,
+            "searchable": false
+        }
     ]
 });
 
@@ -123,7 +137,7 @@ $('.table tbody').on( 'click', 'tr', function () {
         oTable.$('tr.selected').removeClass('selected');
         $(this).addClass('selected');
     }
-} );
+});
 
 // 获取选中数据
 function getSelectedData(dtObj, callback){
@@ -132,11 +146,6 @@ function getSelectedData(dtObj, callback){
         return callback(data);
     else
         toastr["error"]("请先选择需要操作对象", "");
-}
-
-// error
-$.fn.dataTable.ext.errMode = function( settings, tn, msg ) {
-    console.log(msg);
 }
 
 // 获取当前行数据
@@ -152,6 +161,63 @@ function DTdraw(obj) {
     obj.ajax.reload(null, false);
 }
 
+// error
+$.fn.dataTable.ext.errMode = function( settings, tn, msg ) {
+    console.log(msg);
+}
+
+// 弹窗
+function layui_form(msg,callback=function(){},area=''){
+    var area = area || '40rem';
+    layer.open({
+        type: 1,
+        shadeClose: true,
+        title: msg,
+        content: $('#actionModal').html(),
+        area: area,
+        success: function(layero, index){
+            return callback();
+        }
+    });
+}
+
+// 详情
+function layui_detail(msg,url,area=''){
+    var area = area || '40rem';
+    layer.open({
+        type: 2,
+        shade: 0.8,
+        anim: 5,
+        shadeClose: true,
+        title: msg,
+        content: url,
+        area: area,
+    });
+}
+
+// 提交表单
+function submit_form(url){
+    formOptions.url = url;
+    formOptions.success = function(responseText, statusText) {
+        if (responseText.status == 1) {
+            toastr["success"]("操作成功", "");
+            DTdraw(oTable);
+            layer.closeAll();
+        }
+    }
+    $('#actionForm').ajaxSubmit(formOptions);
+    return false;
+}
+
+// multiselect
+$('body').on('click', '#selectAll', function(event) {
+    $('#multiSelect').multiSelect('select_all');
+});
+$('body').on('click', '#unSlectAll', function(event) {
+    $('#multiSelect').multiSelect('deselect_all');
+});
+
+// 修改状态
 function set_status(title, url, data){
     swal.queue([{
         title: title,

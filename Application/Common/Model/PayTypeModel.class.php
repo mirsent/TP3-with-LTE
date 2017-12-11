@@ -24,7 +24,7 @@ class PayTypeModel extends BaseModel{
     /**
      * 获取支付类型dt数据
      */
-    public function getDTInfo(){
+    public function getDataForDt(){
         $data = $this
             ->where(['status'=>array('neq',C('STATUS_N'))])
             ->select();

@@ -4,10 +4,9 @@
 <block name="content">
     <div class="box box-primary">
         <div class="box-header with-border">
-            <h3 class="box-title">菜单列表</h3>
-            <div class="box-tools">
-                <button type="button" class="btn btn-primary" id="add">添加</button>
-            </div>
+            <button type="button" class="btn btn-default" id="add"><i class="fa fa-plus fa-fw"></i>添加</button>
+            <button type="button" class="btn btn-default" id="edit"><i class="fa fa-edit fa-fw"></i>编辑</button>
+            <button type="button" class="btn btn-default" id="delete"><i class="fa fa-trash-o fa-fw"></i>删除</button>
         </div>
         <div class="box-body">
             <table class="table table-bordered table-hover">
@@ -17,9 +16,11 @@
                         <th>方法</th>
                         <th>图标</th>
                         <th width="10%">状态</th>
-                        <th width="20%">操作</th>
                     </tr>
                 </thead>
+                <tbody>
+
+                </tbody>
             </table>
         </div>
     </div>
@@ -56,6 +57,13 @@
                     <input type="text" name="nav_ico" placeholder="请输入图标" autocomplete="off" class="layui-input">
                 </div>
             </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="status" value="{:C('STATUS_Y')}" title="启用" checked>
+                    <input type="radio" name="status" value="{:C('STATUS_B')}" title="禁用">
+                </div>
+            </div>
 
             <div class="layui-form-item">
                 <div class="layui-input-block">
@@ -71,32 +79,10 @@
     <script type="text/javascript">
         $(document).ready(function() {
             oTable = $(".table").DataTable({
-                "ordering": false,
-                "paging": false,
-                ajax: function(data, callback, settings) {
-                    param = {
-                        draw: data.draw, // 绘制计数器
-                        limit: data.length, // 每页显示多少条数据
-                        start: data.start, // 开始的记录序号
-                        page: (data.start / data.length) + 1, // 当前页码
-                        order: data.order, // 排序
-                    };
-                    $.ajax({
-                        type: "POST",
-                        url: "__URL__/getAdminNavInfo",
-                        data: param,
-                        dataType: "json",
-                        success: function(result) {
-                            var returnData = {
-                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
-                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
-                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
-                                data: result.data // 返回的数据列表
-                            };
-                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
-                        }
-                    });
-                },
+                serverSide: false,
+                ordering: false,
+                paging: false,
+                ajax: "{:U('Sys/getAdminNavInfo')}",
                 columns: [
                     {
                         "data":"nav_name",
@@ -108,31 +94,9 @@
                     {
                         "data":"nav_ico",
                         "class": "text-center",
-                        "render":function(data,type,full,meta){
-                            return '<i class="fa fa-'+data+'"></i>';
-                        }
+                        "render": DT.RENDER.FA
                     },
-                    {
-                        "data":"status",
-                        "class": "text-center",
-                        "render":function(data,type,full,meta){
-                            return data == {:C('STATUS_Y')} ? '<span class="text-success">启用</span>' : '<span class="text-warning">禁用</span>';
-                        }
-                    },
-                    {
-                        "data": "status",
-                        "class": "text-center",
-                        "orderable": false,
-                        "render":function(data,type,full,meta){
-                            var state = '',
-                                sOut = '<div class="btn-group"><button type="button" id="edit" class="btn btn-success">编辑</button>';
-                            state = data == {:C('STATUS_Y')} ? '<button type="button" id="ban" class="btn btn-warning">禁用</button>' : '<button type="button" id="allow" class="btn btn-info">启用</button>';
-                            sOut += state;
-                            sOut += '<button type="button" id="delete" class="btn btn-danger">删除</button></div>';
-
-                            return sOut;
-                        }
-                    }
+                    DT.COLUMN.STATUS
                 ],
                 initComplete: function(settings, json) {
 
@@ -143,82 +107,40 @@
         /************************* document ready end *****************************/
 
         layui.use(['layer', 'form'], function() {
-            layer = layui.layer,
-            form = layui.form;
+            var layer = layui.layer,
+                form = layui.form;
 
+            // 添加
+            $('#add').on('click', function() {
+                layui_form('添加菜单');
+                form.render();
+            });
+
+            // 编辑
+            $('#edit').on('click', function() {
+                getSelectedData(oTable, function(data){
+                    layui_form('修改菜单', function(){
+                        dataToForm('actionForm', data);
+                    });
+                    form.render();
+                });
+            });
+
+            // 提交
             form.on('submit(submit)', function(data) {
-                formOptions.url = "__URL__/inputNav";
-                formOptions.success = function(responseText, statusText) {
-                    if (responseText.status == 1) {
-                        toastr["success"]("操作成功", "OK");
-                        DTdraw(oTable);
-                        layer.closeAll();
-                    }
-                }
-                $('#actionForm').ajaxSubmit(formOptions);
-                return false;
-            });
-        });
-
-        $('#add').on('click', function() {
-            layer.open({
-                type: 1,
-                shadeClose: true,
-                title: '添加菜单',
-                content: $('#actionModal').html(),
-                skin: 'layui-layer-lan',
-                area: '40%',
-            });
-            form.render();
-        });
-
-        // 编辑
-        $('.table').on('click', '#edit', function() {
-            var data = getCurRowData(oTable, $(this));
-            layer.open({
-                type: 1,
-                shadeClose: true,
-                title: '修改菜单',
-                content: $('#actionModal').html(),
-                skin: 'layui-layer-lan',
-                area: '40%',
-                success: function(layero, index){
-                    dataToForm('actionForm', data);
-                }
-            });
-            form.render();
-        });
-
-        // 启用
-        $('.table').on('click', '#allow', function() {
-            var data = getCurRowData(oTable, $(this)),
-                title = '确认启用菜单 ' + data['title'] + ' ?';
-            set_status(title, '__URL__/setStatus', {
-                id: data.id,
-                status: {:C('STATUS_Y')},
-                table: "{$table}"
-            });
-        });
-
-        // 禁用
-        $('.table').on('click', '#ban', function() {
-            var data = getCurRowData(oTable, $(this)),
-                title = '确认禁用菜单 ' + data['title'] + ' ?';
-            set_status(title, '__URL__/setStatus', {
-                id: data.id,
-                status: {:C('STATUS_B')},
-                table: "{$table}"
+                submit_form("__URL__/inputNav");
             });
         });
 
         // 删除
-        $('.table').on('click', '#delete', function() {
-            var data = getCurRowData(oTable, $(this)),
-                title = '确认删除菜单 ' + data['title'] + ' ?';
-            set_status(title, '__URL__/setStatus', {
-                id: data.id,
-                status: {:C('STATUS_N')},
-                table: "{$table}"
+        $('#delete').on('click', function() {
+            getSelectedData(oTable, function(data){
+                var title = '确认删除菜单 ' + data['nav_name'] + ' ?';
+                set_status(title, '__URL__/setStatus', {
+                    id: data.id,
+                    status: {:C('STATUS_N')},
+                    table: "{$table}"
+                });
             });
         });
     </script>

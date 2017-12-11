@@ -1,7 +1,11 @@
 <?php
 namespace Admin\Controller;
 use Think\Controller;
-class UserController extends Controller{
+class LogController extends Controller{
+
+    public function login(){
+        $this->display();
+    }
 
     /**
      * 登录验证
@@ -27,7 +31,7 @@ class UserController extends Controller{
     /**
      * 登录
      */
-    public function userLogin(){
+    public function log_in(){
         $map['user_name'] = I('user_name');
         $user = D('User')->getUserData($map);
 
@@ -41,9 +45,9 @@ class UserController extends Controller{
     /**
      * 登出
      */
-    public function userLogout(){
+    public function log_out(){
         session(C('USER_AUTH_KEY'), null);
-        $this->redirect('User/log');
+        $this->redirect('Log/login');
     }
 
     /**

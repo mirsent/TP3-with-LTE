@@ -11,6 +11,16 @@ class AuthGroupModel extends BaseModel{
 	);
 
 	/**
+	 * 获取权限分组列表
+	 */
+	public function getAuthGroupList(){
+		$data = $this
+			->where(['status'=>C('STATUS_Y')])
+			->select();
+		return $data;
+	}
+
+	/**
 	 * 传递主键id删除数据
 	 * @param  array   $map  主键id
 	 * @return boolean       操作是否成功
