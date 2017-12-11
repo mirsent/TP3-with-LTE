@@ -10,7 +10,7 @@
             <button type="button" class="btn btn-default" id="delete"><i class="fa fa-trash-o fa-fw"></i>删除</button>
         </div>
         <div class="box-body">
-            <table class="table table-bordered table-striped     table-hover">
+            <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
                         <th>支付方式</th>
@@ -52,33 +52,13 @@
         $(document).ready(function() {
             oTable = $(".table").DataTable({
                 dom: "<'row'<'col-sm-6'l><'col-sm-6'f>> t <'row'<'col-sm-6'i><'col-sm-6'p>>",
+                serverSide: false,
                 searching: true,
-                ajax: function(data, callback, settings) {
-                    param = {
-                        draw: data.draw, // 绘制计数器
-                        limit: data.length, // 每页显示多少条数据
-                        start: data.start, // 开始的记录序号
-                        page: (data.start / data.length) + 1, // 当前页码
-                        order: data.order, // 排序
-                        search: $('.fuzzy-search').val(), // 模糊搜索
-
-                        p_type_name: $('[name="p_type_name"]').val(),
-                    };
-                    $.ajax({
-                        type: "POST",
-                        url: "{:U('Sys/getPayTypeInfo')}",
-                        data: param,
-                        dataType: "json",
-                        success: function(result) {
-                            var returnData = {
-                                draw: data.draw, // Datatables发送的draw是多少服务器就返回多少
-                                recordsTotal: result.recordsTotal, // 返回数据全部记录数
-                                recordsFiltered: result.recordsFiltered, // 返回过滤后记录数
-                                data: result.data // 返回的数据列表
-                            };
-                            callback(returnData); // 调用DataTables提供的callback方法，代表数据传回DataTables进行渲染
-                        }
-                    });
+                ajax: {
+                    url: "{:U('Sys/getPayTypeInfo')}",
+                    data: {
+                        table: "{$table}"
+                    }
                 },
                 columns: [
                     { "data": "p_type_name" },
@@ -96,36 +76,17 @@
             });
         });
 
-        $('.table tbody').on( 'click', 'tr', function () {
-            if ( $(this).hasClass('selected') ) {
-                $(this).removeClass('selected');
-            }
-            else {
-                oTable.$('tr.selected').removeClass('selected');
-                $(this).addClass('selected');
-            }
-        } );
-
-        // 获取选中数据
-        function getSelectedData(dtObj){
-            return dtObj.row('.selected').data();
-        }
-
-
         /************************* document ready end *****************************/
-
-        // 模糊搜索
-        $('.box-body').on('click', '#fuzzySearch', function() {
-            DTReload(oTable);
-        });
-        // 高级搜索
-        $('.box-body').on('click', '#advancedSearch', function() {
-            DTReload(oTable);
-        });
 
         layui.use(['layer', 'form'], function() {
             var layer = layui.layer,
                 form = layui.form;
+
+            layer.config({
+                type: 1,
+                shadeClose: true,
+                area: '40rem'
+            });
 
             // 提交
             form.on('submit(submit)', function(data) {
@@ -133,7 +94,7 @@
                 formOptions.data = { 'table': "{$table}" };
                 formOptions.success = function(responseText, statusText) {
                     if (responseText.status == 1) {
-                        toastr["success"]("操作成功", "OK");
+                        toastr["success"]("操作成功", "");
                         DTdraw(oTable);
                         layer.closeAll();
                     }
@@ -145,48 +106,37 @@
             // 新增
             $('#add').on('click', function() {
                 layer.open({
-                    type: 1,
                     title: '添加支付方式',
                     content: $('#actionModal').html(),
-                    area: '40rem',
                 });
                 form.render();
             });
 
             // 编辑
             $('#edit').on('click', function() {
-                var data = getSelectedData(oTable);
-                if (data) {
+                getSelectedData(oTable, function(data){
                     layer.open({
-                        type: 1,
                         title: '修改支付方式',
                         content: $('#actionModal').html(),
-                        area: '40rem',
                         success: function(layero, index){
                             dataToForm('actionForm', data);
                         }
                     });
                     form.render();
-                }
-                else
-                    toastr["error"]("请先选择需要操作对象", "");
+                });
             });
-
         });
 
         // 删除
         $('#delete').on('click', function() {
-            var data = getSelectedData(oTable);
-            if (data) {
+            getSelectedData(oTable, function(data){
                 var title = '确认删除支付方式 ' + data['p_type_name'] + ' ?';
-                set_status(title, '__URL__/setStatus', {
+                set_status(title, "{:U('Sys/setStatus')}", {
                     id: data.id,
                     status: {:C('STATUS_N')},
                     table: "{$table}"
                 });
-            }
-            else
-                toastr["error"]("请先选择需要操作对象", "");
+            });
         });
     </script>
 </block>

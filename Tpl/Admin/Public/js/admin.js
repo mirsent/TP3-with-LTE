@@ -114,6 +114,26 @@ $.extend($.fn.dataTable.defaults, {
     ]
 });
 
+// dt点击行选中
+$('.table tbody').on( 'click', 'tr', function () {
+    if ( $(this).hasClass('selected') ) {
+        $(this).removeClass('selected');
+    }
+    else {
+        oTable.$('tr.selected').removeClass('selected');
+        $(this).addClass('selected');
+    }
+} );
+
+// 获取选中数据
+function getSelectedData(dtObj, callback){
+    var data = dtObj.row('.selected').data();
+    if (data)
+        return callback(data);
+    else
+        toastr["error"]("请先选择需要操作对象", "");
+}
+
 // error
 $.fn.dataTable.ext.errMode = function( settings, tn, msg ) {
     console.log(msg);
@@ -164,7 +184,6 @@ var formOptions = {
     dataType: 'json',
     timeout: 3000,
 }
-
 
 // 水印
 function watermark(settings) {

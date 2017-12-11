@@ -21,4 +21,14 @@ class PayTypeModel extends BaseModel{
         return $data;
     }
 
+    /**
+     * 获取支付类型dt数据
+     */
+    public function getDTInfo(){
+        $data = $this
+            ->where(['status'=>array('neq',C('STATUS_N'))])
+            ->select();
+        return $data;
+    }
+
 }
