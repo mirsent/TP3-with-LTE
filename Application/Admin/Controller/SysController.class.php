@@ -5,18 +5,6 @@ use Common\Controller\AdminBaseController;
  * 系统配置controller
  */
 class SysController extends AdminBaseController{
-    /**
-     * 支付方式管理
-     */
-    public function pay_type(){
-        $assign = [
-            'table' => 'PayType',
-            'name' => 'p_type_name',
-            'title' => '支付方式'
-        ];
-        $this->assign($assign);
-        $this->display();
-    }
 
     public function company(){
         $assign = [
@@ -28,6 +16,13 @@ class SysController extends AdminBaseController{
         $this->display();
     }
 
+    /************************************************************************
+     类型管理通用方法
+    *************************************************************************/
+
+    /**
+     * 获取dt数据
+     */
     public function getDtInfo(){
         $ms = D(I('table'));
         $infos = $ms->getDataForDt();
@@ -71,6 +66,10 @@ class SysController extends AdminBaseController{
         ajax_return(1);
     }
 
+    /************************************************************************
+     菜单管理
+    *************************************************************************/
+
     public function admin_nav(){
         $map = array(
             'status' => array('neq',C('STATUS_N')),
@@ -84,9 +83,6 @@ class SysController extends AdminBaseController{
         $this->assign($assign);
         $this->display();
     }
-
-
-
 
     /**
      * 获取菜单列表
@@ -110,8 +106,7 @@ class SysController extends AdminBaseController{
         $id = I('id');
 
         if ($id) { // 编辑
-            $map['id'] = $id;
-            $res = $adminNav->editData($map, null);
+            $res = $adminNav->where(['id'=>$id])->save();
         } else {
             $res = $adminNav->add();
         }

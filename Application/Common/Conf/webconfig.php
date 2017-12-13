@@ -4,7 +4,7 @@ return array(
     'TITLE'             => '后台管理系统',
 
     /*认证相关*/
-    'USER_AUTH_KEY'     => 'reimbursement', // 用户认证SESSION标记
+    'USER_AUTH_KEY'     => __ROOT__.'reimbursement', // 用户认证SESSION标记
     'USER_AUTH_GATEWAY' => 'Log/login', // 默认认证网关
 
     /*状态*/

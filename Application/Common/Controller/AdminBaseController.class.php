@@ -26,7 +26,7 @@ class AdminBaseController extends BaseController{
         $company = D('Company')->getCompanyData(); // 公司
 
         // 分配菜单数据
-        $nav_data=D('AdminNav')->getTreeData('level','order_num,id');
+        $nav_data=D('AdminNav')->getTreeData('level','order_num desc');
         $assign=array(
             'nav_data' => $nav_data,
             'payType' => $payType,

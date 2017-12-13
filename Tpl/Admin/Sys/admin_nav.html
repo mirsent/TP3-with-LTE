@@ -15,6 +15,7 @@
                         <th>菜单名称</th>
                         <th>方法</th>
                         <th>图标</th>
+                        <th>排序</th>
                         <th width="10%">状态</th>
                     </tr>
                 </thead>
@@ -58,6 +59,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-block">
+                    <input type="number" name="order_num" placeholder="如需排序请输入" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <label class="layui-form-label">状态</label>
                 <div class="layui-input-block">
                     <input type="radio" name="status" value="{:C('STATUS_Y')}" title="启用" checked>
@@ -96,6 +103,7 @@
                         "class": "text-center",
                         "render": DT.RENDER.FA
                     },
+                    { "data": "order_num", "class": "text-center" },
                     DT.COLUMN.STATUS
                 ],
                 initComplete: function(settings, json) {

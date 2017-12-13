@@ -1,5 +1,4 @@
 <?php
-
 header("Content-type:text/html;charset=utf-8");
 
 //传递数据以易于阅读的样式格式化后输出
@@ -46,79 +45,6 @@ function app_upload_image($path,$maxSize=52428800){
 }
 
 /**
- * 实例化阿里云oos
- * @return object 实例化得到的对象
- */
-function new_oss(){
-    vendor('Alioss.autoload');
-    $config=C('ALIOSS_CONFIG');
-    $oss=new \OSS\OssClient($config['KEY_ID'],$config['KEY_SECRET'],$config['END_POINT']);
-    return $oss;
-}
-
-/**
- * 上传文件到oss并删除本地文件
- * @param  string $path 文件路径
- * @return bollear      是否上传
- */
-function oss_upload($path){
-    // 获取bucket名称
-    $bucket=C('ALIOSS_CONFIG.BUCKET');
-    // 先统一去除左侧的.或者/ 再添加./
-    $oss_path=ltrim($path,'./');
-    $path='./'.$oss_path;
-    if (file_exists($path)) {
-        // 实例化oss类
-        $oss=new_oss();
-        // 上传到oss
-        $oss->uploadFile($bucket,$oss_path,$path);
-        // 如需上传到oss后 自动删除本地的文件 则删除下面的注释
-        // unlink($path);
-        return true;
-    }
-    return false;
-}
-
-/**
- * 删除oss上指定文件
- * @param  string $object 文件路径 例如删除 /Public/README.md文件  传Public/README.md 即可
- */
-function oss_delet_object($object){
-    // 实例化oss类
-    $oss=new_oss();
-    // 获取bucket名称
-    $bucket=C('ALIOSS_CONFIG.BUCKET');
-    $test=$oss->deleteObject($bucket,$object);
-}
-
-/**
- * app 视频上传
- * @return string 上传后的视频名
- */
-function app_upload_video($path,$maxSize=52428800){
-    ini_set('max_execution_time', '0');
-    // 去除两边的/
-    $path=trim($path,'.');
-    $path=trim($path,'/');
-    $config=array(
-        'rootPath'  =>'./',         //文件上传保存的根路径
-        'savePath'  =>'./'.$path.'/',
-        'exts'      => array('mp4','avi','3gp','rmvb','gif','wmv','mkv','mpg','vob','mov','flv','swf','mp3','ape','wma','aac','mmf','amr','m4a','m4r','ogg','wav','wavpack'),
-        'maxSize'   => $maxSize,
-        'autoSub'   => true,
-        );
-    $upload = new \Think\Upload($config);// 实例化上传类
-    $info = $upload->upload();
-    if($info) {
-        foreach ($info as $k => $v) {
-            $data[]=trim($v['savepath'],'.').$v['savename'];
-        }
-        return $data;
-    }
-}
-
-
-/**
  * 返回文件格式
  * @param  string $str 文件名
  * @return string      文件格式
@@ -155,46 +81,6 @@ function file_format($str){
 }
 
 /**
- * 发送友盟推送消息
- * @param  integer  $uid   用户id
- * @param  string   $title 推送的标题
- * @return boolear         是否成功
- */
-function umeng_push($uid,$title){
-    // 获取token
-    $device_tokens=D('OauthUser')->getToken($uid,2);
-    // 如果没有token说明移动端没有登录；则不发送通知
-    if (empty($device_tokens)) {
-        return false;
-    }
-    // 导入友盟
-    Vendor('Umeng.Umeng');
-    // 自定义字段   根据实际环境分配；如果不用可以忽略
-    $status=1;
-    // 消息未读总数统计  根据实际环境获取未读的消息总数 此数量会显示在app图标右上角
-    $count_number=1;
-    $data=array(
-        'key'=>'status',
-        'value'=>"$status",
-        'count_number'=>$count_number
-        );
-    // 判断device_token  64位表示为苹果 否则为安卓
-    if(strlen($device_tokens)==64){
-        $key=C('UMENG_IOS_APP_KEY');
-        $timestamp=C('UMENG_IOS_SECRET');
-        $umeng=new \Umeng($key, $timestamp);
-        $umeng->sendIOSUnicast($data,$title,$device_tokens);
-    }else{
-        $key=C('UMENG_ANDROID_APP_KEY');
-        $timestamp=C('UMENG_ANDROID_SECRET');
-        $umeng=new \Umeng($key, $timestamp);
-        $umeng->sendAndroidUnicast($data,$title,$device_tokens);
-    }
-    return true;
-}
-
-
-/**
  * 返回用户id
  * @return integer 用户id
  */
@@ -217,13 +103,13 @@ function ajax_return($status=1,$msg='成功',$data=''){
     if ($data!=='') {
         $all_data['data']=$data;
         // app 禁止使用和为了统一字段做的判断
-        $reserved_words=array('id','title','price','product_title','product_id','product_category','product_number');
-        foreach ($reserved_words as $k => $v) {
-            if (array_key_exists($v, $data)) {
-                echo 'app不允许使用【'.$v.'】这个键名 —— 此提示是function.php 中的ajax_return函数返回的';
-                die;
-            }
-        }
+        // $reserved_words=array('id','title','price','product_title','product_id','product_category','product_number');
+        // foreach ($reserved_words as $k => $v) {
+        //     if (array_key_exists($v, $data)) {
+        //         echo 'app不允许使用【'.$v.'】这个键名 —— 此提示是function.php 中的ajax_return函数返回的';
+        //         die;
+        //     }
+        // }
     }
     // 如果是ajax或者app访问；则返回json数据 pc访问直接p出来
     echo json_encode($all_data);
@@ -255,18 +141,6 @@ function get_url($path){
 }
 
 /**
- * 检测是否登录
- * @return boolean 是否登录
- */
-function check_login(){
-    if (!empty($_SESSION['user']['id'])){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-/**
  * 根据配置项获取对应的key和secret
  * @return array key和secret
  */
@@ -284,81 +158,6 @@ function get_rong_key_secret(){
         'secret'=>$secret
         );
     return $data;
-}
-
-/**
- * 获取融云token
- * @param  integer $uid 用户id
- * @return integer      token
- */
-function get_rongcloud_token($uid){
-    // 从数据库中获取token
-    $token=D('OauthUser')->getToken($uid,1);
-    // 如果有token就返回
-    if ($token) {
-        return $token;
-    }
-    // 获取用户昵称和头像
-    $user_data=M('Users')->field('username,avatar')->getById($uid);
-    // 用户不存在
-    if (empty($user_data)) {
-        return false;
-    }
-    // 获取头像url格式
-    $avatar=get_url($user_data['avatar']);
-    // 获取key和secret
-    $key_secret=get_rong_key_secret();
-    // 实例化融云
-    $rong_cloud=new \Org\Xb\RongCloud($key_secret['key'],$key_secret['secret']);
-    // 获取token
-    $token_json=$rong_cloud->getToken($uid,$user_data['username'],$avatar);
-    $token_array=json_decode($token_json,true);
-    // 获取token失败
-    if ($token_array['code']!=200) {
-        return false;
-    }
-    $token=$token_array['token'];
-    $data=array(
-        'uid'=>$uid,
-        'type'=>1,
-        'nickname'=>$user_data['username'],
-        'head_img'=>$avatar,
-        'access_token'=>$token
-        );
-    // 插入数据库
-    $result=D('OauthUser')->addData($data);
-    if ($result) {
-        return $token;
-    }else{
-        return false;
-    }
-}
-
-/**
- * 更新融云头像
- * @param  integer $uid 用户id
- * @return boolear      操作是否成功
- */
-function refresh_rongcloud_token($uid){
-    // 获取用户昵称和头像
-    $user_data=M('Users')->field('username,avatar')->getById($uid);
-    // 用户不存在
-    if (empty($user_data)) {
-        return false;
-    }
-    $avatar=get_url($user_data['avatar']);
-    // 获取key和secret
-    $key_secret=get_rong_key_secret();
-    // 实例化融云
-    $rong_cloud=new \Org\Xb\RongCloud($key_secret['key'],$key_secret['secret']);
-    // 更新融云用户头像
-    $result_json=$rong_cloud->userRefresh($uid,$user_data['username'],$avatar);
-    $result_array=json_decode($result_json,true);
-    if ($result_array['code']==200) {
-        return true;
-    }else{
-        return false;
-    }
 }
 
 /**
@@ -763,25 +562,6 @@ function upload($path='file',$format='empty',$maxSize='52428800'){
     }
 }
 
-/**
- * 使用curl获取远程数据
- * @param  string $url url连接
- * @return string      获取到的数据
- */
-function curl_get_contents($url){
-    $ch=curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);                //设置访问的url地址
-    // curl_setopt($ch,CURLOPT_HEADER,1);               //是否显示头部信息
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);               //设置超时
-    curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);   //用户访问代理 User-Agent
-    curl_setopt($ch, CURLOPT_REFERER,$_SERVER['HTTP_HOST']);        //设置 referer
-    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);          //跟踪301
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);        //返回结果
-    $r=curl_exec($ch);
-    curl_close($ch);
-    return $r;
-}
-
 /*
 * 计算星座的函数 string get_zodiac_sign(string month, string day)
 * 输入：月份，日期
@@ -812,42 +592,6 @@ function get_zodiac_sign($month, $day)
     if ($day < $sign_start)
     list($sign_start, $sign_name) = each($signs[($month -2 < 0) ? $month = 11: $month -= 2]);
     return $sign_name;
-}
-
-/**
- * 发送 容联云通讯 验证码
- * @param  int $phone 手机号
- * @param  int $code  验证码
- * @return boole      是否发送成功
- */
-function send_sms_code($phone,$code){
-    //请求地址，格式如下，不需要写https://
-    $serverIP='app.cloopen.com';
-    //请求端口
-    $serverPort='8883';
-    //REST版本号
-    $softVersion='2013-12-26';
-    //主帐号
-    $accountSid=C('RONGLIAN_ACCOUNT_SID');
-    //主帐号Token
-    $accountToken=C('RONGLIAN_ACCOUNT_TOKEN');
-    //应用Id
-    $appId=C('RONGLIAN_APPID');
-    //应用Id
-    $templateId=C('RONGLIAN_TEMPLATE_ID');
-    $rest = new \Org\Xb\Rest($serverIP,$serverPort,$softVersion);
-    $rest->setAccount($accountSid,$accountToken);
-    $rest->setAppId($appId);
-    // 发送模板短信
-    $result=$rest->sendTemplateSMS($phone,array($code,5),$templateId);
-    if($result==NULL) {
-        return false;
-    }
-    if($result->statusCode!=0) {
-        return  false;
-    }else{
-        return true;
-    }
 }
 
 /**
@@ -1027,28 +771,6 @@ function ajax_upload($path='file',$format='empty',$maxSize='52428800'){
         }
     }
 }
-
-/**
- * 检测webuploader上传是否成功
- * @param  string $file_path post中的字段
- * @return boolear           是否成功
- */
-function upload_success($file_path){
-    // 为兼容传进来的有数组；先转成json
-    $file_path=json_encode($file_path);
-    // 如果有undefined说明上传失败
-    if (strpos($file_path, 'undefined') !== false) {
-        return false;
-    }
-    // 如果没有.符号说明上传失败
-    if (strpos($file_path, '.') === false) {
-        return false;
-    }
-    // 否则上传成功则返回true
-    return true;
-}
-
-
 
 /**
  * 把用户输入的文本转义（主要针对特殊符号和emoji表情）
@@ -1437,28 +1159,4 @@ function validate_apple_pay($receipt_data){
             );
     }
     return $result;
-}
-
-/**
- * geetest检测验证码
- */
-function geetest_chcek_verify($data){
-    $geetest_id=C('GEETEST_ID');
-    $geetest_key=C('GEETEST_KEY');
-    $geetest=new \Org\Xb\Geetest($geetest_id,$geetest_key);
-    $user_id=$_SESSION['geetest']['user_id'];
-    if ($_SESSION['geetest']['gtserver']==1) {
-        $result=$geetest->success_validate($data['geetest_challenge'], $data['geetest_validate'], $data['geetest_seccode'], $user_id);
-        if ($result) {
-            return true;
-        } else{
-            return false;
-        }
-    }else{
-        if ($geetest->fail_validate($data['geetest_challenge'],$data['geetest_validate'],$data['geetest_seccode'])) {
-            return true;
-        }else{
-            return false;
-        }
-    }
 }
