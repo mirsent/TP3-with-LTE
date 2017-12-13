@@ -94,6 +94,9 @@ var DT = {
         },
         FA: function (data,type,full,meta) {
             return '<i class="fa fa-'+data+'"></i>';
+        },
+        TIME: function (data,type,full,meta) {
+            return data.substr(0, 10);
         }
     }
 };
@@ -207,6 +210,42 @@ function submit_form(url){
     }
     $('#actionForm').ajaxSubmit(formOptions);
     return false;
+}
+
+
+
+/***************************** sweetalert2 ***********************************/
+
+// 带输入框 input : text, email, password, number, tel, range, textarea, select, radio, checkbox, file and url
+/*
+var inputOptions = new Promise((resolve) => {
+  setTimeout(() => {
+    resolve({
+      '#ff0000': 'Red',
+      '#00ff00': 'Green',
+      '#0000ff': 'Blue'
+    })
+  }, 2000)
+})
+*/
+
+function swal_input(msg, name, callback=function(){}, input='text', inputOptions=''){
+    swal({
+        title: msg,
+        input: input,
+        showCancelButton: true,
+        inputOptions: inputOptions,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入'+name,
+        inputValidator: (value) => {
+            return !value && name+'必填!'
+        }
+    }).then((result) => {
+        if (result.value) {
+            return callback(result.value);
+        }
+    });
 }
 
 // multiselect

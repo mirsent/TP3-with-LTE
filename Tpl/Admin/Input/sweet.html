@@ -20,21 +20,23 @@
     <script src="__BOWER__/sweetalert2/dist/sweetalert2.all.min.js"></script>
     <script type="text/javascript">
         $('#sweet').on('click', () => {
-            (async function getMessage() {
-                const {value: name} = await swal({
-                  title: 'What is your name?',
-                  input: 'text',
-                  inputPlaceholder: 'Enter your name or nickname',
-                  showCancelButton: true,
-                  inputValidator: (value) => {
-                    return !value && 'You need to write something!'
-                  }
-                })
+            // var inputOptions = new Promise((resolve) => {
+            //   setTimeout(() => {
+            //     resolve({
+            //       '#ff0000': 'Red',
+            //       '#00ff00': 'Green',
+            //       '#0000ff': 'Blue'
+            //     })
+            //   }, 2000)
+            // })
+            var inputOptions = {
+                'SRB': 'Serbia',
+                'UKR': 'Ukraine',
+                'HRV': 'Croatia'
+            }
+            swal_input('这是标题', '姓名', (value) => {
 
-                if (name) {
-                  swal({type: 'success', title: 'Hi, ' + name})
-                }
-            })()
+            }, 'select', inputOptions);
         });
     </script>
 </block>
