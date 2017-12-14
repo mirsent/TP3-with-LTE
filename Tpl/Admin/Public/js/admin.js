@@ -1,5 +1,7 @@
 // 系统常量
-var STATUS_Y = 1;
+var STATUS_N = 0,
+    STATUS_Y = 1,
+    STATUS_B = 2;
 
 // To make Pace works on Ajax calls
 $(document).ajaxStart(function() {
@@ -90,13 +92,20 @@ var DT = {
     },
     RENDER: {
         ELLIPSIS: function (data,type,full,meta) {
-
+            return '<span class="dt-ellipsis" title="'+data+'">'+data+'</span>';
+        },
+        IMG: function (data,type,full,meta) {
+            return '<img class="img-thumbnail" src="'+data+'">';
         },
         FA: function (data,type,full,meta) {
             return '<i class="fa fa-'+data+'"></i>';
         },
         TIME: function (data,type,full,meta) {
             return data.substr(0, 10);
+        },
+        INPUT: function(data,type,full,meta) {
+            var data = data || '';
+            return '<input class="dt-input" type="text" value="'+data+'">'
         }
     }
 };
@@ -131,8 +140,8 @@ $.extend($.fn.dataTable.defaults, {
     ]
 });
 
-// dt点击行选中
-$('.table tbody').on( 'click', 'tr', function () {
+// 单选
+$('.table-single tbody').on( 'click', 'tr', function () {
     if ( $(this).hasClass('selected') ) {
         $(this).removeClass('selected');
     }
@@ -141,8 +150,7 @@ $('.table tbody').on( 'click', 'tr', function () {
         $(this).addClass('selected');
     }
 });
-
-// 获取选中数据
+// 获取单行选中数据
 function getSelectedData(dtObj, callback){
     var data = dtObj.row('.selected').data();
     if (data)
@@ -150,6 +158,20 @@ function getSelectedData(dtObj, callback){
     else
         toastr["error"]("请先选择需要操作对象", "");
 }
+
+// 多选
+$('.table-multiple tbody').on( 'click', 'tr', function () {
+    $(this).toggleClass('selected');
+});
+// 获取多行选中数据
+function getMultipleSelectedData(dtObj, callback){
+    var data = dtObj.rows('.selected').data();
+    if (data.length)
+        return callback(data);
+    else
+        toastr["error"]("请先选择需要操作对象", "");
+}
+
 
 // 获取当前行数据
 function getCurRowData(obj, that) {
@@ -170,8 +192,7 @@ $.fn.dataTable.ext.errMode = function( settings, tn, msg ) {
 }
 
 // 弹窗
-function layui_form(msg,callback=function(){},area=''){
-    var area = area || '40rem';
+function layui_form(msg,callback=function(){},area='40rem'){
     layer.open({
         type: 1,
         shadeClose: true,
@@ -185,8 +206,7 @@ function layui_form(msg,callback=function(){},area=''){
 }
 
 // 详情
-function layui_detail(msg,url,area=''){
-    var area = area || '40rem';
+function layui_detail(msg,url,area='40rem'){
     layer.open({
         type: 2,
         shade: 0.8,
@@ -228,7 +248,6 @@ var inputOptions = new Promise((resolve) => {
   }, 2000)
 })
 */
-
 function swal_input(msg, name, callback=function(){}, input='text', inputOptions=''){
     swal({
         title: msg,
@@ -245,16 +264,8 @@ function swal_input(msg, name, callback=function(){}, input='text', inputOptions
         if (result.value) {
             return callback(result.value);
         }
-    });
+    }).catch(swal.noop);
 }
-
-// multiselect
-$('body').on('click', '#selectAll', function(event) {
-    $('#multiSelect').multiSelect('select_all');
-});
-$('body').on('click', '#unSlectAll', function(event) {
-    $('#multiSelect').multiSelect('deselect_all');
-});
 
 // 修改状态
 function set_status(title, url, data){
@@ -282,6 +293,14 @@ function set_status(title, url, data){
         }
     }]).catch(swal.noop);
 }
+
+// multiselect
+$('body').on('click', '#selectAll', function(event) {
+    $('#multiSelect').multiSelect('select_all');
+});
+$('body').on('click', '#unSlectAll', function(event) {
+    $('#multiSelect').multiSelect('deselect_all');
+});
 
 // jquery.form
 var formOptions = {

@@ -8,6 +8,9 @@ table.dataTable tbody tr.selected {
 .table th{
     text-align: left;
 }
+.table td{
+    vertical-align: middle !important;
+}
 .search-box{
     border-radius: 3px;
     margin: 0 0 20px 0;
@@ -19,6 +22,22 @@ table.dataTable tbody tr.selected {
 }
 .search-box label{
     color: #FFF;
+}
+/* input */
+.dt-input{
+    width: 30px;
+    text-align: center;
+    border: 1px solid #DDD;
+}
+/* ellipsis */
+.dt-ellipsis{
+    overflow: hidden;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: normal;
 }
 
 /* dt搜索 */

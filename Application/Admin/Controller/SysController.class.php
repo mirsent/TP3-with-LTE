@@ -116,4 +116,16 @@ class SysController extends AdminBaseController{
         }
         ajax_return(1);
     }
+
+    /**
+     * 菜单排序
+     */
+    public function orderNav(){
+        $data['order_num'] = I('order_num');
+        $res = M('admin_nav')->where(['id'=>I('id')])->save($data);
+        if ($res === false) {
+            ajax_return(0, '排序出错');
+        }
+        ajax_return(1);
+    }
 }
