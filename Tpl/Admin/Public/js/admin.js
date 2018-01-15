@@ -118,6 +118,7 @@ var DTSearchGroup =
     '</div>';
 
 // default setting
+var height = document.body.clientHeight - $('.box-body').offset().top - 270 + 'px';
 $.extend($.fn.dataTable.defaults, {
     dom:
         "<'row'<'col-sm-6'l><'search-item col-sm-6'>>" +
@@ -125,6 +126,9 @@ $.extend($.fn.dataTable.defaults, {
         "<'row'<'col-sm-12'tr>>" +
         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
     language: DT.DTLang, // 提示信息
+    pageLength: 20, // 初始化页长度
+    lengthMenu: [ [10, 20, 50, 100, -1], [10, 20, 50, 100, "所有"] ], // 页面显示条数的下拉框选项
+    scrollY: height, // 垂直滚动
     autoWidth: false, // 自动调整列宽
     processing: true, // 加载提示
     serverSide: true, // 服务器端分页
@@ -248,24 +252,66 @@ var inputOptions = new Promise((resolve) => {
   }, 2000)
 })
 */
-function swal_input(msg, name, callback=function(){}, input='text', inputOptions=''){
+function swal_input(title,name,callback=function(){},input='text',inputOptions=''){
     swal({
-        title: msg,
+        title: title,
         input: input,
         showCancelButton: true,
         inputOptions: inputOptions,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPlaceholder: '请输入'+name,
-        inputValidator: (value) => {
-            return !value && name+'必填!'
-        }
+        showLoaderOnConfirm: true,
+        preConfirm: (value) => {
+            return new Promise((resolve) => {
+                if (!value) {
+                    swal.showValidationError(
+                        name+'必填！'
+                    )
+                }
+                resolve()
+            })
+        },
+        allowOutsideClick: () => !swal.isLoading(),
     }).then((result) => {
         if (result.value) {
             return callback(result.value);
         }
-    }).catch(swal.noop);
+    });
 }
+
+// 询问操作
+function swal_action(title,text,callback=function(){},type='warning'){
+    swal({
+        title: title,
+        text: text,
+        type: type,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !swal.isLoading(),
+    }).then((result) => {
+        if (result.value) {
+            return callback(result.value);
+        }
+    });
+}
+
+// 提示 type:success,error,warning,info,question
+function swal_notice(title,type='success'){
+    swal({
+      position: 'top-end',
+      type: type,
+      title: title,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      timer: 1500
+    })
+}
+
 
 // 修改状态
 function set_status(title, url, data){
@@ -291,7 +337,7 @@ function set_status(title, url, data){
                 });
             })
         }
-    }]).catch(swal.noop);
+    }]);
 }
 
 // multiselect

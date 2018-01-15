@@ -3,13 +3,12 @@ namespace Admin\Controller;
 use Common\Controller\AdminBaseController;
 class AuthController extends AdminBaseController {
 
-    /***********************************************************************************************
-        规则管理
-     **********************************************************************************************/
+    /********************************************** 规则管理 ****************************************/
+
     public function rule(){
         $cond = array(
             'status' => C('STATUS_Y'),
-            'pid' => 0
+            'pid'    => 0
         );
         $pRules = M('auth_rule')->where($cond)->select();
         $assign = array(
@@ -20,10 +19,13 @@ class AuthController extends AdminBaseController {
         $this->display();
     }
 
+    /**
+     * 获取权限规则列表
+     */
     public function getAuthRuleInfo(){
         $ms = D('AuthRule');
-        $map['status'] = array('neq', C('STATUS_N'));
-        $infos = $ms->where($map)->getTreeData('tree','','title');
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $ms->where($cond)->getTreeData('tree','','title');
 
         echo json_encode([
             "data" => $infos
@@ -64,22 +66,31 @@ class AuthController extends AdminBaseController {
     }
 
 
-    /***********************************************************************************************
-        用户组管理
-     **********************************************************************************************/
+
+
+
+    /********************************************** 用户组管理 ****************************************/
 
     public function group(){
         $authRule = M('auth_rule');
         // 获取一级规则
-        $map = array(
+        $cond = array(
             'status' => C('STATUS_Y'),
-            'pid' => 0
+            'pid'    => 0
         );
-        $rules = $authRule->where($map)->field('id, title')->order('id')->select();
+        $rules = $authRule
+            ->where($cond)
+            ->field('id, title')
+            ->order('id')
+            ->select();
 
         foreach ($rules as $key => $value) {
-            $map['pid'] = $value['id'];
-            $rules[$key]['_data'] = $authRule->where($map)->field('id, title')->order('id')->select(); // 二级规则
+            $cond['pid'] = $value['id'];
+            $rules[$key]['_data'] = $authRule
+                ->where($cond)
+                ->field('id, title')
+                ->order('id')
+                ->select(); // 二级规则
         }
 
         $assign = array(
@@ -95,8 +106,8 @@ class AuthController extends AdminBaseController {
      */
     public function getAuthGroupInfo(){
         $ms = D('AuthGroup');
-        $map['status'] = array('neq', C('STATUS_N'));
-        $infos = $ms->where($map)->select();
+        $cond['status'] = array('neq', C('STATUS_N'));
+        $infos = $ms->where($cond)->select();
         foreach ($infos as $key => $value) {
             $infos[$key]['group_id'] = $value['id'];
             $infos[$key]['rules_arr'] = $this->getMultiSelectArr($value['rules']);
@@ -145,9 +156,10 @@ class AuthController extends AdminBaseController {
     }
 
 
-    /***********************************************************************************************
-        用户管理
-     **********************************************************************************************/
+
+
+
+    /********************************************** 用户管理 ****************************************/
 
     public function user(){
         $groups = D('AuthGroup')->getAuthGroupList();
@@ -156,8 +168,8 @@ class AuthController extends AdminBaseController {
     }
 
     public function getAuthUserInfo(){
-        $map['u.status'] = array('neq', C('STATUS_N'));
-        $infos = D('User')->getUserInfo($map);
+        $cond['u.status'] = array('neq', C('STATUS_N'));
+        $infos = D('User')->getUserInfo($cond);
         foreach ($infos as $key => $value) {
             $infos[$key]['company_auth_arr'] = explode(',', $value['company_auth']);
             $infos[$key]['company_auth_name'] = D('Company')->getCompanysByIds($value['company_auth']);
@@ -176,12 +188,12 @@ class AuthController extends AdminBaseController {
         $trans = M();
         $trans->startTrans();   // 开启事务
 
-        $map['uid'] = $map_user['id'] = I('uid');
+        $cond['uid'] = $cond_user['id'] = I('uid');
 
         // 修改用户组
         $authGroupAccess = D('AuthGroupAccess');
         $authGroupAccess->create();
-        $res = $authGroupAccess->editData($map, null);
+        $res = $authGroupAccess->editData($cond, null);
 
         // 修改用户信息
         $user = D('User');
@@ -191,7 +203,7 @@ class AuthController extends AdminBaseController {
             'status' => I('status'),
             'company_auth' => implode(',', I('company_auth'))
         ];
-        $userRes = $user->editData($map_user, $data);
+        $userRes = $user->editData($cond_user, $data);
 
         if ($res === false || $userRes === false) {
             $tran_result = false;
@@ -226,9 +238,9 @@ class AuthController extends AdminBaseController {
         }
 
         // 修改用户状态
-        $map_user['id'] = $userId;
+        $cond_user['id'] = $userId;
         $data_user['status'] = C('STATUS_N');
-        $userRes = D('User')->editData($map_user,$data_user);
+        $userRes = D('User')->editData($cond_user,$data_user);
 
         if ($userRes === false) {
             $tran_result = false;

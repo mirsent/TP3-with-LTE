@@ -23,10 +23,12 @@ class AuthRuleModel extends BaseModel{
 	 * @return string       规则名称(规则1;规则2)
 	 */
 	public function getAuthByIds($rules){
-	    foreach (explode(',', $rules) as $v) {
-	        $arr.= $this->getFieldById($v, 'title').';';
-	    }
-	    return trim($arr, ';');
+		$map = [
+			'status' => C('STATUS_Y'),
+			'id'     => array('in',$rules)
+		];
+		$data = $this->where($map)->getField('title',true);
+		return implode(';',$data);
 	}
 
 }
